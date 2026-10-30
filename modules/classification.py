@@ -18,6 +18,7 @@ import time
 import annuaire
 
 logger = logging.getLogger(__name__)
+WIDGETS = ("im.vector.modular.widgets", "m.widget")   # les deux types d'état qu'Element affiche comme widgets
 
 
 def niveau_du_nom(nom, niveaux):
@@ -80,7 +81,7 @@ class Classification:
             return False, None
         if evenement.type == "m.reaction":
             return False, None
-        if evenement.type == "im.vector.modular.widgets" and evenement.content.get("url") not in (None, self.circuit):
+        if evenement.type in WIDGETS and evenement.content.get("url") not in (None, self.circuit):
             return False, None
         # Supprimer l'événement qui porte le nom ferait revenir l'ancien nom : ce serait un déclassement.
         if evenement.type == "m.room.redaction" and evenement.redacts == evenement_nom.event_id:
@@ -88,7 +89,7 @@ class Classification:
         return True, None
 
     def _widgets_etrangers(self, etat):
-        return any(cle[0] == "im.vector.modular.widgets" and ev.content.get("url") not in (None, self.circuit)
+        return any(cle[0] in WIDGETS and ev.content.get("url") not in (None, self.circuit)
                    for cle, ev in etat.items())
 
     async def installer_circuit(self, evenement, etat):

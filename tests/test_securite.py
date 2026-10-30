@@ -287,6 +287,7 @@ class TestAgents(unittest.TestCase):
         piege = {"type": "m.custom", "url": "https://site-externe.example/", "name": "Piège"}
         self.assertEqual(api("PUT", f"/rooms/{salon}/state/im.vector.modular.widgets/circuit", self.jeton_r, piege)[0], 403)
         self.assertEqual(api("PUT", f"/rooms/{salon}/state/im.vector.modular.widgets/autre", self.jeton_r, piege)[0], 403)
+        self.assertEqual(api("PUT", f"/rooms/{salon}/state/m.widget/autre", self.jeton_r, piege)[0], 403)
         with urllib.request.urlopen("https://circuit.localhost/", timeout=20, context=CONTEXTE_TLS) as page:
             # La page du circuit ne peut être affichée que dans la messagerie (pas sur un site tiers).
             self.assertIn("frame-ancestors https://chat.localhost", page.headers["Content-Security-Policy"])
