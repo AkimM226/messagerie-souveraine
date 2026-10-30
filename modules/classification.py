@@ -44,16 +44,35 @@ class Classification:
         return config
 
     async def verifier_evenement(self, evenement, etat):
-        nom_actuel = etat.get(("m.room.name", ""))
-        nom_actuel = nom_actuel.content.get("name") if nom_actuel else None
+        evenement_nom = etat.get(("m.room.name", ""))
+        nom_actuel = evenement_nom.content.get("name") if evenement_nom else None
+
         if niveau_du_nom(nom_actuel, self.niveaux) is None:
+            # Classifier un salon : seulement s'il est vide (sinon tout l'historique serait détruit
+            # rétroactivement) et non public.
+            if evenement.type == "m.room.name" and niveau_du_nom(evenement.content.get("name"), self.niveaux):
+                regles = etat.get(("m.room.join_rules", ""))
+                if regles and regles.content.get("join_rule") == "public":
+                    return False, None
+                if await self.api.run_db_interaction("salon_a_des_messages", self._a_des_messages, evenement.room_id):
+                    return False, None
             return True, None
+
         if evenement.type == "m.room.name" and not renommage_autorise(
                 nom_actuel, evenement.content.get("name"), self.niveaux):
             return False, None
         if evenement.type == "m.room.join_rules" and evenement.content.get("join_rule") == "public":
             return False, None
+        # Supprimer l'événement qui porte le nom ferait revenir l'ancien nom : ce serait un déclassement.
+        if evenement.type == "m.room.redaction" and evenement.redacts == evenement_nom.event_id:
+            return False, None
         return True, None
+
+    @staticmethod
+    def _a_des_messages(txn, salon):
+        txn.execute("SELECT 1 FROM events WHERE room_id = ? AND type IN ('m.room.encrypted', 'm.room.message') LIMIT 1",
+                    (salon,))
+        return txn.fetchone() is not None
 
     async def faire_expirer(self):
         for salon, nom, createur in await self.api.run_db_interaction("salons_classifies", self._salons):
