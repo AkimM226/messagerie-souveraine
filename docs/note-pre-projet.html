@@ -19,14 +19,17 @@ Le serveur transporte et stocke des messages qu'il ne peut pas lire : seuls les 
 Aucune donnée ne quitte le pays, aucun service tiers n'est nécessaire, et l'installation tient en une commande.</p>
 
 <h2>2. Architecture</h2>
-<div class="schema">Navigateur ou mobile de l'agent (Element) ── chiffre / déchiffre ──►  <b>Caddy</b> (point d'entrée HTTPS)
-                                                               ├─► <b>Synapse</b> (serveur Matrix) ─► <b>PostgreSQL</b>
-                                                               │      + module « classification » (innovation)
-                                                               └─► <b>Keycloak</b> (annuaire des agents, 2FA, rôles)</div>
+<div class="schema">Navigateur de l'agent : Element (chiffre / déchiffre) + widget « circuit administratif »
+      │ HTTPS
+      ▼
+<b>Caddy</b> (point d'entrée) ─┬─► <b>Synapse</b> (serveur Matrix) ─► <b>PostgreSQL</b>
+                         │      + modules « annuaire » et « classification »
+                         └─► <b>Keycloak</b> (agents enrôlés, 2FA, rôles, journal)</div>
 <ul>
   <li><b>Element</b> (client) chiffre chaque message et chaque fichier <i>avant</i> l'envoi.</li>
   <li><b>Synapse</b> (serveur) relaie et stocke des données déjà chiffrées ; fédération désactivée : il ne parle à aucun autre serveur.</li>
-  <li><b>Keycloak</b> est la seule porte d'entrée : mot de passe + code TOTP, rôles, désactivation. Synapse n'a aucun mot de passe local.</li>
+  <li><b>Keycloak</b> est la seule porte d'entrée : mot de passe + code TOTP, rôles, désactivation. Synapse n'a aucun mot de passe local
+      et relit l'annuaire toutes les 5 s (révocations, noms affichés, responsables).</li>
   <li><b>Docker Compose</b> : <code>docker compose up -d</code> démarre les cinq services, sans dépendance externe.</li>
 </ul>
 
@@ -44,24 +47,28 @@ celle du client Element : <i>vodozemac</i>, implémentation Rust d'Olm/Megolm au
   <tr><td>Keycloak 26.0.7</td><td>Identité, 2FA (TOTP), rôles, révocation</td><td>Apache-2.0</td></tr>
   <tr><td>PostgreSQL 16</td><td>Base de données</td><td>PostgreSQL License</td></tr>
   <tr><td>Caddy 2.8</td><td>Proxy inverse, HTTPS</td><td>Apache-2.0</td></tr>
-  <tr><td>Notre code (configuration, module, outil de révocation, tests)</td><td>—</td><td>MIT</td></tr>
+  <tr><td>matrix-widget-api 1.10</td><td>Dialogue entre le widget et Element</td><td>Apache-2.0</td></tr>
+  <tr><td>Notre code (configuration, 2 modules Synapse, widget, outils, tests)</td><td>—</td><td>MIT</td></tr>
 </table>
 
 <h2>5. Niveau d'engagement open source : « Étendre et adapter »</h2>
 <p>Nous assemblons des briques éprouvées et les adaptons aux exigences de l'administration : configuration durcie
-(aucun service tiers, métadonnées réduites), enrôlement obligatoire par rôle, outil de révocation et
-<b>module serveur original</b> de classification. Contribution prévue : traduction de l'interface d'Element en langue nationale (mooré)
+(aucun service tiers, métadonnées réduites), enrôlement obligatoire par rôle, et <b>code original</b> : deux modules
+Synapse (annuaire et révocation, classification) et le widget du circuit administratif. Contribution prévue : traduction de l'interface d'Element en langue nationale (mooré)
 soumise au projet d'origine.</p>
 
 <h2>6. Fonctionnalités innovantes</h2>
 <ul>
-  <li><b>Salons classifiés à expiration automatique.</b> Un agent nomme son salon <code>[CONFIDENTIEL] …</code> ou
-    <code>[DIFFUSION RESTREINTE] …</code>. Le serveur, sans jamais lire les messages, les supprime automatiquement de tous
-    les appareils au-delà de la durée fixée par le niveau (ex. 24 h / 7 jours), interdit le déclassement du salon
-    et son ouverture au public. Une conversation sensible ne laisse ainsi aucune trace durable.</li>
-  <li><b>Révocation en une commande</b> (<code>docker compose run --rm admin revoquer &lt;agent&gt;</code>) : compte désactivé,
-    toutes les sessions fermées, tous les appareils déconnectés, retrait de tous les groupes — en moins de 3 secondes.</li>
-  <li><b>Annuaire des agents</b> : tout agent enrôlé peut trouver un collègue ; aucun compte extérieur n'y figure.</li>
+  <li><b>Circuit administratif chiffré.</b> Un responsable émet une instruction de service, une note, une convocation ou une
+    demande d'action (priorité, échéance, accusé demandé). Chaque destinataire répond d'un clic : Reçu, Pris connaissance,
+    En cours, Exécuté ou Demande de clarification ; l'émetteur suit les réponses dans un tableau. Tout est chiffré de bout
+    en bout par Element : le serveur ne distingue même pas une instruction d'un message ordinaire.</li>
+  <li><b>Classification.</b> <code>[DIFFUSION RESTREINTE]</code> ou <code>[CONFIDENTIEL]</code> en tête du nom d'un salon (réservé
+    aux responsables) : expiration automatique des messages sur tous les appareils, ni déclassement ni ouverture au public,
+    filigrane nominatif sur les communications confidentielles.</li>
+  <li><b>Annuaire institutionnel et révocation centralisée.</b> L'annuaire Keycloak, tenu par les administrateurs, fait foi :
+    nom, fonction, direction et ministère affichés et recherchables ; désactiver un agent dans la console coupe toutes ses
+    sessions en moins de 5 s et renouvelle les clés de ses groupes.</li>
 </ul>
 
 <h2>7. Répartition des rôles</h2>

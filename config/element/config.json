@@ -6,6 +6,7 @@
         }
     },
     "brand": "Messagerie souveraine",
+    "branding": { "auth_footer_links": [] },
     "disable_custom_urls": true,
     "disable_guests": true,
     "disable_login_language_selector": false,

@@ -14,63 +14,72 @@
 
 <h2>1. Menaces prises en compte et protections</h2>
 <table>
-  <tr><th style="width:31%">Menace</th><th>Protection mise en place</th></tr>
-  <tr><td>Lecture des messages par le serveur, son administrateur ou un attaquant qui vole la base</td>
-      <td><b>Chiffrement de bout en bout</b> Olm/Megolm (Matrix) des messages et des fichiers, fait par le client. Le serveur ne stocke
-      que des blocs <code>m.room.encrypted</code> ; vérifié : une recherche du texte dans une copie complète de la base donne 0 résultat.</td></tr>
-  <tr><td>Interception du trafic réseau</td>
-      <td>Contenu déjà chiffré de bout en bout ; en plus, <b>tout le trafic passe en HTTPS</b> (Caddy, autorité de certification
-      interne, HTTP redirigé vers HTTPS). Les échanges serveur ↔ Keycloak restent sur le réseau interne Docker, jamais exposé.</td></tr>
-  <tr><td>Personne non autorisée qui tente de s'inscrire ou d'entrer dans un groupe</td>
-      <td>Inscription désactivée, aucun mot de passe local dans Synapse : connexion uniquement via Keycloak (OpenID Connect + PKCE).
-      Synapse exige le rôle <code>agent</code> ; un compte sans ce rôle est rejeté. Aucun invité, aucune fédération.</td></tr>
+  <tr><th style="width:29%">Menace</th><th>Protection mise en place (testée)</th></tr>
+  <tr><td>Lecture des messages et fichiers par le serveur, son administrateur ou un voleur de la base</td>
+      <td><b>Chiffrement de bout en bout</b> Olm/Megolm fait par Element (vodozemac), messages <i>et</i> pièces jointes.
+      Le serveur stocke des blocs <code>m.room.encrypted</code> et des fichiers <code>application/octet-stream</code> sans nom.
+      Il <b>refuse tout message en clair</b> dans un salon chiffré. Vérifié : une chaîne de contrôle est introuvable dans
+      la copie complète de la base, les fichiers et les journaux (<code>scripts/verifier.sh</code>).</td></tr>
+  <tr><td>Interception du trafic</td>
+      <td>Contenu déjà chiffré ; <b>HTTPS partout</b> (Caddy, autorité interne). Synapse ↔ Keycloak sur le réseau interne Docker.</td></tr>
+  <tr><td>Personne non autorisée (inscription, intrus, compte non enrôlé)</td>
+      <td>Pas d'inscription ni de mot de passe local : connexion uniquement par Keycloak (OpenID Connect + PKCE).
+      Synapse exige le rôle <code>agent</code>. Aucune fédération, aucun invité. API et consoles d'administration non exposées (403).</td></tr>
   <tr><td>Vol ou devinette du mot de passe</td>
-      <td><b>Second facteur TOTP obligatoire</b> pour tous (parcours de connexion « mot de passe + code », non conditionnel) ;
-      protection contre la force brute (blocage temporaire après 5 échecs).</td></tr>
-  <tr><td>Agent qui quitte son poste, téléphone perdu ou volé</td>
-      <td><b>Révocation immédiate</b> en une commande : compte Keycloak désactivé et sessions fermées ; compte Matrix désactivé
-      (jetons, appareils et clés supprimés, retrait de tous les groupes). Les autres membres changent de clé de groupe :
-      l'agent ne peut plus lire aucun nouveau message. Testé : effectif en 2 s, reconnexion refusée.</td></tr>
-  <tr><td>Dépendance ou fuite vers un service étranger</td>
-      <td>Aucun service tiers : pas de serveur de clés matrix.org, pas d'intégrations, de visio externe, d'aperçus de liens,
-      de statistiques ni de rapports d'erreurs. Tout tourne sur l'infrastructure de l'État.</td></tr>
-  <tr><td>Conservation excessive d'échanges sensibles</td>
-      <td>Salons <b>classifiés à expiration automatique</b> ; un salon classifié ne peut être ni déclassé, ni rendu public,
-      ni classifié après coup (aucune destruction rétroactive d'historique).</td></tr>
-  <tr><td>Accès aux outils d'administration</td>
-      <td>API d'administration Synapse et console Keycloak <b>non exposées</b> (403 depuis l'extérieur) ; accessibles
-      seulement depuis le serveur. Le compte <code>admin.securite</code> est lui-même soumis au 2FA.</td></tr>
+      <td><b>TOTP obligatoire</b> pour tous (contrôlé par Keycloak, pas par l'interface) ; blocage après 5 échecs ;
+      limite de connexions par adresse côté Synapse.</td></tr>
+  <tr><td>Agent qui quitte son poste, appareil perdu</td>
+      <td><b>Révocation centralisée et idempotente</b> : désactiver l'agent dans la console Keycloak suffit. Toutes les 5 s,
+      le module <code>annuaire.py</code> relit l'annuaire et désactive le compte Matrix : jetons et appareils supprimés,
+      départ de tous les groupes. Les autres appareils <b>changent de clé Megolm</b> : vérifié, le message suivant utilise une
+      nouvelle session. Testé : sessions coupées en 1 à 5 s, sur deux appareils ; ancien jeton et reconnexion refusés.</td></tr>
+  <tr><td>Usurpation de rôle ou d'identité</td>
+      <td>Rôles vérifiés <b>par le serveur</b> : seul un <code>responsable</code> classifie un salon. Nom affiché imposé par
+      l'annuaire (y compris par salon). Dans le circuit, seuls les membres de niveau ≥ 50 (niveau appliqué par Synapse) émettent.</td></tr>
+  <tr><td>Page tierce greffée sur une conversation</td>
+      <td>Dans un salon classifié, le seul widget autorisé est le circuit. Celui-ci ne reçoit d'Element que les événements du
+      circuit, ne voit jamais les clés et ne s'affiche que dans la messagerie (en-tête CSP <code>frame-ancestors</code>).</td></tr>
+  <tr><td>Dépendance ou fuite vers l'étranger</td>
+      <td>Aucun service tiers : pas de serveur de clés matrix.org, d'intégrations, de visio externe, d'aperçus de liens,
+      de statistiques ; pages Synapse sans image externe ; bibliothèque du widget hébergée localement.</td></tr>
+  <tr><td>Conservation excessive</td>
+      <td>Salons classifiés à <b>expiration automatique</b> ; ni déclassement, ni ouverture publique, ni classification rétroactive.</td></tr>
+  <tr><td>Perte de données, traçabilité</td>
+      <td>Sauvegarde / restauration testées. <b>Journal Keycloak</b> des enrôlements, révocations et connexions (30 jours), sans contenu.</td></tr>
 </table>
 
-<h2>2. Ce que le serveur voit malgré tout (métadonnées)</h2>
-<p>Le serveur ne lit <b>aucun contenu</b>. Pour acheminer les messages, il voit cependant :</p>
-<ul>
-  <li><b>qui échange avec qui</b> : la liste des membres de chaque salon et l'expéditeur de chaque message ;</li>
-  <li><b>quand</b> : l'horodatage de chaque message, et sa taille approximative ;</li>
-  <li><b>les noms et sujets des salons</b> (non chiffrés dans Matrix) — d'où la consigne de n'y mettre aucune information sensible ;</li>
-  <li>la liste des appareils de chaque agent et leurs clés publiques ; les adresses IP de connexion ;</li>
-  <li>les accusés de lecture et indications de saisie, si l'agent les laisse activés.</li>
-</ul>
-<p><b>Mesures prises pour réduire ces métadonnées :</b> statut de présence (« en ligne ») désactivé ; adresses IP conservées
-1 jour au lieu de 28 ; profils visibles uniquement entre agents partageant un salon ; aucune fédération (les métadonnées ne
-quittent jamais le serveur de l'État) ; contenu d'un message supprimé effacé du serveur après 1 heure ; expiration
-automatique dans les salons classifiés, qui efface aussi les traces des échanges ; aucun annuaire public de salons.</p>
+<h2>2. Chiffrement et gestion des clés</h2>
+<p>Chaque appareil possède ses clés Olm (identité Curve25519/Ed25519), générées et conservées <b>dans le navigateur</b> ;
+le serveur ne publie que les clés publiques. Un message de groupe est chiffré avec une session Megolm (AES-256 + HMAC),
+envoyée à chaque appareil membre par un canal Olm. Après le départ d'un membre, l'émetteur crée une nouvelle session.
+Le widget du circuit n'a aucune clé : Element chiffre ses événements (instructions, accusés) comme des messages ordinaires.
+<b>L'équipe n'a écrit aucune ligne de cryptographie.</b></p>
 
-<h2>3. Limites connues</h2>
+<h2>3. Ce que le serveur voit malgré tout (métadonnées)</h2>
 <ul>
-  <li><b>Certificats de démonstration</b> : l'autorité interne de Caddy doit être approuvée sur chaque poste ; en production,
-      utiliser les domaines et l'autorité de certification de l'État.</li>
-  <li><b>Secrets de démonstration dans le dépôt</b> (mots de passe des comptes fictifs, base de données, administrateur Keycloak) :
-      à remplacer dans <code>.env</code> avant tout déploiement réel.</li>
-  <li><b>Administrateur malveillant</b> : il ne peut pas lire les messages passés, mais pourrait ajouter un faux appareil à un compte.
-      Parade : vérification croisée des appareils (cross-signing) proposée par Element, qui signale tout appareil non vérifié.</li>
-  <li><b>TOTP n'empêche pas l'hameçonnage</b> en temps réel ; évolution prévue vers les clés physiques (WebAuthn/FIDO2), déjà supportées par Keycloak.</li>
-  <li><b>Après révocation</b>, les messages déjà déchiffrés et affichés sur l'appareil ont pu être lus ou copiés ; l'effacement à distance
-      des données locales n'est pas encore implémenté.</li>
-  <li><b>Classification</b> : le serveur ne peut empêcher ni une capture d'écran ni le copier-coller d'un message (il ne voit pas le contenu) ;
-      les messages expirés sont supprimés au nom de leur auteur (mention « Expiration automatique ») ; un message peut rester
-      quelques instants sur un appareil hors ligne jusqu'à sa synchronisation.</li>
-  <li>Un seul serveur, sans haute disponibilité ni sauvegarde automatisée dans ce prototype.</li>
+  <li>Identifiants des agents, membres de chaque salon, expéditeur et <b>horodatage</b> de chaque événement, taille approximative
+      des messages et des pièces jointes, identifiant de session Megolm.</li>
+  <li><b>Noms et sujets des salons</b> (dont le niveau de classification) et noms affichés (fonction, direction, ministère) :
+      n'y mettre aucune information sensible.</li>
+  <li>Appareils de chaque agent et leurs clés publiques ; <b>adresses IP</b> (Synapse : 1 jour ; journal Keycloak : 30 jours).</li>
+  <li>Accusés de lecture automatiques et indications de saisie d'Element (non chiffrés) ; réactions emoji (interdites en salon classifié).</li>
+</ul>
+<p><b>Réductions :</b> présence désactivée ; annuaire et profils réservés aux agents connectés ; aucune fédération ;
+contenu d'un message supprimé effacé après 1 h ; le serveur ne distingue pas une instruction ou un accusé du circuit d'un
+message ordinaire ; aucun contenu, jeton ou clé privée dans les journaux.</p>
+
+<h2>4. Limites techniques et risques résiduels</h2>
+<ul>
+  <li><b>Après révocation</b>, ce qui était déjà déchiffré sur un appareil hors ligne y reste lisible : aucun effacement à distance.</li>
+  <li>Un appareil connecté <b>après</b> l'envoi d'un message ne peut pas le lire (pas de sauvegarde de clés imposée) ;
+      les clés locales d'Element sont protégées par le navigateur et le système, pas par une phrase secrète.</li>
+  <li><b>Capture et photo d'écran</b> restent possibles : le filigrane identifie l'agent, il n'empêche rien.
+      Les accusés du circuit ne sont pas une signature électronique au sens juridique.</li>
+  <li><b>Administrateur malveillant</b> : il ne lit pas les messages passés mais pourrait ajouter un appareil à un compte ;
+      la vérification croisée des appareils d'Element le signale. TOTP n'empêche pas l'hameçonnage en temps réel (WebAuthn prévu).</li>
+  <li>Révocation propagée en ≤ 5 s par relecture de l'annuaire ; Keycloak en mode développement (base intégrée) ;
+      un seul serveur ; secrets et certificats de démonstration à remplacer (<code>.env</code>) ; une sauvegarde contient
+      des clés privées du serveur (à conserver chiffrée, hors ligne).</li>
 </ul>
 </body>
 </html>
