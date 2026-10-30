@@ -4,7 +4,6 @@ Messagerie instantanée chiffrée de bout en bout pour les agents publics du Bur
 hébergée sur l'infrastructure de l'État, sans aucun service tiers.
 Projet du sprint pré-hackathon — Hackathon 226, édition 2026.
 
-> Brouillon : README en cours de rédaction.
 
 ## Architecture
 
