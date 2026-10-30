@@ -74,10 +74,10 @@ class Navigateur:
 def connexion(identifiant, secret_totp=None, code=None, navigateur=None):
     """Connexion à la messagerie par Keycloak. Renvoie (jeton Matrix ou None, secret TOTP, dernière page)."""
     nav = navigateur or Navigateur()
-    _, _, page = nav.ouvrir(f"{MATRIX}/_matrix/client/v3/login/sso/redirect/oidc-keycloak?"
+    _, url, page = nav.ouvrir(f"{MATRIX}/_matrix/client/v3/login/sso/redirect/oidc-keycloak?"
                             + urllib.parse.urlencode({"redirectUrl": "https://chat.localhost/"}))
     for _ in range(4):
-        jeton_connexion = re.search(r"loginToken=([\w.\-~]+)", page)
+        jeton_connexion = re.search(r"loginToken=([\w.\-~]+)", url + page)
         if jeton_connexion:
             for _ in range(5):
                 code, reponse = api("POST", "/login", corps={"type": "m.login.token", "token": jeton_connexion.group(1)})
@@ -98,7 +98,7 @@ def connexion(identifiant, secret_totp=None, code=None, navigateur=None):
             champs["otp"] = code or totp(secret_totp)
         else:
             return None, secret_totp, page
-        _, _, page = nav.ouvrir(formulaire.action, champs)
+        _, url, page = nav.ouvrir(formulaire.action, champs)
     return None, secret_totp, page
 
 
@@ -256,6 +256,12 @@ class TestAgents(unittest.TestCase):
             lambda: api("GET", f"/profile/{self.mxid_a}/displayname", self.jeton_a)[1].get("displayname") == attendu))
         code, _ = api("PUT", f"/profile/{self.mxid_a}/displayname", self.jeton_a, {"displayname": "Le Ministre"})
         self.assertGreaterEqual(code, 400, "un agent ne doit pas pouvoir changer son nom affiché")
+        # Ni par un nom propre à un salon : le serveur remet le nom de l'annuaire.
+        salon = self.creer_salon(self.jeton_a, name="Essai nom")[1]["room_id"]
+        api("PUT", f"/rooms/{salon}/state/m.room.member/{self.mxid_a}", self.jeton_a,
+            {"membership": "join", "displayname": "Le Ministre"})
+        membre = api("GET", f"/rooms/{salon}/state/m.room.member/{self.mxid_a}", self.jeton_a)[1]
+        self.assertEqual(membre.get("displayname"), attendu)
 
     def test_annuaire_recherche_par_service(self):
         trouve = lambda: any(r["user_id"] == self.mxid_a for r in api(
@@ -278,6 +284,9 @@ class TestAgents(unittest.TestCase):
         widget = lambda: api("GET", f"/rooms/{salon}/state/im.vector.modular.widgets/circuit", self.jeton_r)
         self.assertIsNotNone(attendre(lambda: widget()[0] == 200, 10))
         self.assertTrue(widget()[1]["url"].startswith("https://circuit.localhost/"))
+        piege = {"type": "m.custom", "url": "https://site-externe.example/", "name": "Piège"}
+        self.assertEqual(api("PUT", f"/rooms/{salon}/state/im.vector.modular.widgets/circuit", self.jeton_r, piege)[0], 403)
+        self.assertEqual(api("PUT", f"/rooms/{salon}/state/im.vector.modular.widgets/autre", self.jeton_r, piege)[0], 403)
         with urllib.request.urlopen("https://circuit.localhost/", timeout=20, context=CONTEXTE_TLS) as page:
             # La page du circuit ne peut être affichée que dans la messagerie (pas sur un site tiers).
             self.assertIn("frame-ancestors https://chat.localhost", page.headers["Content-Security-Policy"])

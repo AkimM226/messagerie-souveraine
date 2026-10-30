@@ -27,7 +27,7 @@
         "UIFeature.identityServer": false,
         "UIFeature.feedback": false,
         "UIFeature.voip": false,
-        "UIFeature.widgets": false,
+        "UIFeature.widgets": true,
         "UIFeature.urlPreviews": false
     },
     "room_directory": { "servers": ["matrix.localhost"] }

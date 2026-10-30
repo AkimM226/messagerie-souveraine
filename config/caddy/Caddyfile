@@ -7,13 +7,28 @@
 
 # chat2 : second accès au même client, pour faire tourner deux agents côte à côte (démo, tests).
 chat.localhost, chat2.localhost {
+	encode zstd gzip
 	reverse_proxy element:80
 }
 
 matrix.localhost {
+	# Réponses compressées : synchronisation plus légère sur les connexions faibles.
+	encode zstd gzip
 	# L'API d'administration n'est jamais exposée : seul l'outil interne y accède.
 	respond /_synapse/admin/* 403
 	reverse_proxy synapse:8008
+}
+
+# Circuit administratif : page statique affichée dans Element, et seulement dans Element.
+circuit.localhost {
+	encode zstd gzip
+	root * /srv/circuit
+	file_server
+	header {
+		Content-Security-Policy "default-src 'self'; img-src 'self' data:; frame-ancestors https://chat.localhost https://chat2.localhost"
+		X-Content-Type-Options nosniff
+		Referrer-Policy no-referrer
+	}
 }
 
 auth.localhost {

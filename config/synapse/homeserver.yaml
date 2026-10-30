@@ -66,6 +66,10 @@ oidc_providers:
       config:
         localpart_template: "{{ user.preferred_username }}"
         display_name_template: "{{ user.name }}"
+sso:
+  client_whitelist: ["https://chat.localhost/", "https://chat2.localhost/"]   # notre client : pas de page de confirmation
+templates:
+  custom_template_directory: /config/templates   # pages Synapse sans image chargée depuis matrix.org
 
 # --- Chiffrement de bout en bout par défaut dans tous les salons ---
 encryption_enabled_by_default_for_room_type: all
@@ -86,6 +90,7 @@ user_directory:
 redaction_retention_period: 1h       # contenu (chiffré) d'un message supprimé effacé du serveur après 1 h
 
 enable_set_displayname: false        # nom affiché = fiche de l'annuaire (personne ne peut se faire passer pour un autre)
+allow_per_room_profiles: false       # ... y compris par un nom différent dans un seul salon
 
 modules:
   # L'annuaire Keycloak fait foi : révocations, noms affichés, liste des responsables (modules/annuaire.py).

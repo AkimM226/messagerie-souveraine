@@ -8,7 +8,8 @@ Pour chaque niveau, le serveur applique des règles sans jamais lire les message
   - pas de salon public : un salon classifié ne peut pas être ouvert à tous ;
   - seuls les responsables (rôle Keycloak « responsable », voir annuaire.py) peuvent classifier un salon ;
   - pas de réaction (emoji) dans un salon classifié : Matrix les transmet en clair ;
-  - le circuit administratif (widget) est ajouté et épinglé en haut du salon dès sa classification.
+  - le circuit administratif (widget) est ajouté et épinglé en haut du salon dès sa classification ;
+    c'est le seul widget autorisé dans un salon classifié (aucune page tierce ne peut s'y greffer).
 Dans tous les salons chiffrés, le serveur refuse aussi tout message envoyé en clair.
 """
 import logging
@@ -63,7 +64,7 @@ class Classification:
             # Classifier un salon : seulement par un responsable, si le salon est vide (sinon tout
             # l'historique serait détruit rétroactivement) et non public.
             if evenement.type == "m.room.name" and niveau_du_nom(evenement.content.get("name"), self.niveaux):
-                if evenement.sender not in annuaire.RESPONSABLES:
+                if evenement.sender not in annuaire.RESPONSABLES or self._widgets_etrangers(etat):
                     return False, None
                 regles = etat.get(("m.room.join_rules", ""))
                 if regles and regles.content.get("join_rule") == "public":
@@ -79,10 +80,16 @@ class Classification:
             return False, None
         if evenement.type == "m.reaction":
             return False, None
+        if evenement.type == "im.vector.modular.widgets" and evenement.content.get("url") not in (None, self.circuit):
+            return False, None
         # Supprimer l'événement qui porte le nom ferait revenir l'ancien nom : ce serait un déclassement.
         if evenement.type == "m.room.redaction" and evenement.redacts == evenement_nom.event_id:
             return False, None
         return True, None
+
+    def _widgets_etrangers(self, etat):
+        return any(cle[0] == "im.vector.modular.widgets" and ev.content.get("url") not in (None, self.circuit)
+                   for cle, ev in etat.items())
 
     async def installer_circuit(self, evenement, etat):
         if (evenement.type != "m.room.name" or not self.circuit

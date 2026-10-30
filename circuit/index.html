@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Circuit administratif</title>
+<link rel="stylesheet" href="circuit.css">
+</head>
+<body>
+<header>
+  <h1>Circuit administratif</h1>
+  <span id="niveau" class="badge"></span>
+  <span id="chiffrement" class="badge"></span>
+</header>
+<p id="avertissement" class="avertissement" hidden></p>
+
+<details id="emission" hidden>
+  <summary>Nouvelle communication administrative</summary>
+  <form id="formulaire">
+    <label>Type
+      <select name="type" required>
+        <option value="instruction">Instruction de service</option>
+        <option value="note">Note administrative</option>
+        <option value="convocation">Convocation</option>
+        <option value="demande_action">Demande d'action</option>
+        <option value="information">Information institutionnelle</option>
+      </select>
+    </label>
+    <label>Titre <input name="titre" required maxlength="120"></label>
+    <label>Contenu <textarea name="contenu" required maxlength="4000" rows="4"></textarea></label>
+    <label>Service destinataire <input name="service" maxlength="120" placeholder="ex. Direction des ressources humaines"></label>
+    <div class="ligne">
+      <label>Priorité
+        <select name="priorite">
+          <option value="normale">Normale</option>
+          <option value="haute">Haute</option>
+          <option value="urgente">Urgente</option>
+        </select>
+      </label>
+      <label>Date limite <input name="echeance" type="date"></label>
+    </div>
+    <label class="case"><input name="accuse" type="checkbox" checked> Demander un accusé de prise de connaissance</label>
+    <p class="aide">Destinataires : tous les membres de ce salon. Le message est chiffré par Element avant de quitter cet appareil.</p>
+    <button type="submit">Transmettre</button>
+    <span id="statut-envoi" role="status"></span>
+  </form>
+</details>
+
+<main id="liste" aria-live="polite"><p class="vide">Chargement…</p></main>
+
+<footer>Seuls les accusés envoyés par un clic du destinataire sont comptés ; les confirmations de lecture
+automatiques d'Element ne le sont pas. Ces accusés ne constituent pas une signature électronique.</footer>
+
+<script src="vendor/matrix-widget-api-1.10.0.min.js"></script>
+<script src="circuit.js"></script>
+</body>
+</html>
