@@ -32,7 +32,7 @@ Niveau d'engagement : **Étendre et adapter**. Notre code : MIT (voir `LICENSE`)
 docker compose up -d
 ```
 
-Puis ouvrir http://chat.localhost. Gestion des agents (poste serveur uniquement) : http://localhost:8081/admin.
+Puis ouvrir https://chat.localhost. Gestion des agents (poste serveur uniquement) : http://localhost:8081/admin.
 
 ## Innovation : salons classifiés à expiration automatique
 
@@ -50,6 +50,18 @@ Le module serveur [`modules/classification.py`](modules/classification.py) appli
 - **pas de salon public** pour un salon classifié.
 
 Les durées se règlent dans `config/synapse/homeserver.yaml` (section `modules`).
+
+### HTTPS : faire confiance à l'autorité de certification locale (une fois)
+
+Caddy génère sa propre autorité de certification (aucun service tiers). Pour que le navigateur l'accepte :
+
+```bash
+docker compose cp proxy:/data/caddy/pki/authorities/local/root.crt ./autorite-locale.crt
+certutil -addstore -user Root autorite-locale.crt
+```
+
+(Windows ; sous Linux : copier dans `/usr/local/share/ca-certificates/` puis `update-ca-certificates`.)
+En production, on remplace les noms `*.localhost` par les domaines de l'État dans `config/caddy/Caddyfile`.
 
 ## Comptes de démonstration (fictifs)
 
@@ -77,7 +89,7 @@ Révocation (immédiate, sur tous les appareils) :
 docker compose run --rm admin revoquer ibrahim.sawadogo
 ```
 
-Pour la démo, http://chat2.localhost ouvre un second accès : deux agents côte à côte dans le même navigateur.
+Pour la démo, https://chat2.localhost ouvre un second accès : deux agents côte à côte dans le même navigateur.
 
 ## Tests automatisés
 

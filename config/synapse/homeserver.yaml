@@ -1,6 +1,6 @@
 # Configuration Synapse — messagerie souveraine de l'administration
 server_name: "matrix.localhost"
-public_baseurl: "http://matrix.localhost/"
+public_baseurl: "https://matrix.localhost/"
 pid_file: /data/homeserver.pid
 signing_key_path: /data/signing.key
 media_store_path: /data/media_store
@@ -39,12 +39,18 @@ password_config:
 oidc_providers:
   - idp_id: keycloak
     idp_name: "Connexion agent de l'État"
-    issuer: "http://auth.localhost/realms/administration"
+    issuer: "https://auth.localhost/realms/administration"
     client_id: "synapse"
     client_auth_method: none         # client public + PKCE : aucun secret stocké
     pkce_method: always
     scopes: ["openid", "profile"]
-    # ponytail: issuer en HTTP pour la démo locale ; retirer cette ligne en HTTPS.
+    # Le navigateur passe par HTTPS ; Synapse, lui, parle à Keycloak sur le réseau interne Docker
+    # (jamais exposé). skip_verification est requis car ces adresses internes sont en HTTP.
+    discover: false
+    authorization_endpoint: "https://auth.localhost/realms/administration/protocol/openid-connect/auth"
+    token_endpoint: "http://keycloak:8080/realms/administration/protocol/openid-connect/token"
+    userinfo_endpoint: "http://keycloak:8080/realms/administration/protocol/openid-connect/userinfo"
+    jwks_uri: "http://keycloak:8080/realms/administration/protocol/openid-connect/certs"
     skip_verification: true
     # Refuse toute personne qui n'a pas le rôle "agent" (ex. compte non enrôlé).
     attribute_requirements:

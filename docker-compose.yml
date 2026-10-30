@@ -1,19 +1,17 @@
 # Messagerie souveraine de l'administration — installation en une commande :
 #   docker compose up -d
-# Accès : http://chat.localhost (messagerie) · http://localhost:8081/admin (gestion des agents, poste serveur)
+# Accès : https://chat.localhost (messagerie) · http://localhost:8081/admin (gestion des agents, poste serveur)
 
 services:
-  # Point d'entrée unique. Les alias réseau permettent aux conteneurs de joindre
-  # les mêmes adresses que le navigateur (indispensable pour OpenID Connect).
+  # Point d'entrée unique, en HTTPS (autorité de certification interne conservée dans caddy-data).
   proxy:
     image: caddy:2.8.4-alpine
     ports:
       - "80:80"
+      - "443:443"
     volumes:
       - ./config/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
-    networks:
-      default:
-        aliases: [chat.localhost, matrix.localhost, auth.localhost]
+      - caddy-data:/data
     depends_on: [element, synapse, keycloak]
     restart: unless-stopped
 
@@ -62,8 +60,9 @@ services:
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN:-admin}
       KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-ChangezMoi-2026}
-      KC_HOSTNAME: http://auth.localhost
+      KC_HOSTNAME: https://auth.localhost
       KC_HOSTNAME_ADMIN: http://localhost:8081
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"   # Synapse et l'outil admin parlent à keycloak:8080 en interne
       KC_HTTP_ENABLED: "true"
       KC_PROXY_HEADERS: xforwarded
     ports:
@@ -88,6 +87,7 @@ services:
       - ./scripts:/scripts:ro
 
 volumes:
+  caddy-data:
   synapse-data:
   postgres-data:
   keycloak-data:

@@ -2,7 +2,7 @@
   "realm": "administration",
   "displayName": "Administration publique — Messagerie souveraine",
   "enabled": true,
-  "sslRequired": "none",
+  "sslRequired": "external",
   "registrationAllowed": false,
   "resetPasswordAllowed": false,
   "rememberMe": false,
@@ -76,8 +76,8 @@
       "standardFlowEnabled": true,
       "implicitFlowEnabled": false,
       "directAccessGrantsEnabled": false,
-      "redirectUris": ["http://matrix.localhost/_synapse/client/oidc/callback"],
-      "webOrigins": ["http://matrix.localhost"],
+      "redirectUris": ["https://matrix.localhost/_synapse/client/oidc/callback"],
+      "webOrigins": ["https://matrix.localhost"],
       "attributes": {
         "pkce.code.challenge.method": "S256",
         "post.logout.redirect.uris": "+"

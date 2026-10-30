@@ -19,7 +19,8 @@
       <td><b>Chiffrement de bout en bout</b> Olm/Megolm (Matrix) des messages et des fichiers, fait par le client. Le serveur ne stocke
       que des blocs <code>m.room.encrypted</code> ; vérifié : une recherche du texte dans une copie complète de la base donne 0 résultat.</td></tr>
   <tr><td>Interception du trafic réseau</td>
-      <td>Contenu déjà chiffré de bout en bout ; transport en HTTPS via Caddy (certificats de l'État ou autorité interne).</td></tr>
+      <td>Contenu déjà chiffré de bout en bout ; en plus, <b>tout le trafic passe en HTTPS</b> (Caddy, autorité de certification
+      interne, HTTP redirigé vers HTTPS). Les échanges serveur ↔ Keycloak restent sur le réseau interne Docker, jamais exposé.</td></tr>
   <tr><td>Personne non autorisée qui tente de s'inscrire ou d'entrer dans un groupe</td>
       <td>Inscription désactivée, aucun mot de passe local dans Synapse : connexion uniquement via Keycloak (OpenID Connect + PKCE).
       Synapse exige le rôle <code>agent</code> ; un compte sans ce rôle est rejeté. Aucun invité, aucune fédération.</td></tr>
@@ -57,7 +58,8 @@ automatique dans les salons classifiés, qui efface aussi les traces des échang
 
 <h2>3. Limites connues</h2>
 <ul>
-  <li><b>Démonstration en HTTP local</b> (<code>*.localhost</code>) : en production, HTTPS est obligatoire (Caddy l'active avec un vrai domaine).</li>
+  <li><b>Certificats de démonstration</b> : l'autorité interne de Caddy doit être approuvée sur chaque poste ; en production,
+      utiliser les domaines et l'autorité de certification de l'État.</li>
   <li><b>Secrets de démonstration dans le dépôt</b> (mots de passe des comptes fictifs, base de données, administrateur Keycloak) :
       à remplacer dans <code>.env</code> avant tout déploiement réel.</li>
   <li><b>Administrateur malveillant</b> : il ne peut pas lire les messages passés, mais pourrait ajouter un faux appareil à un compte.
