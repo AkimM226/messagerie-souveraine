@@ -34,6 +34,23 @@ docker compose up -d
 
 Puis ouvrir http://chat.localhost. Gestion des agents (poste serveur uniquement) : http://localhost:8081/admin.
 
+## Innovation : salons classifiés à expiration automatique
+
+Un agent classe un salon en commençant son nom par un niveau de classification :
+
+| Niveau | Durée de vie des messages |
+|---|---|
+| `[CONFIDENTIEL] ...` | 5 min en démo (24 h conseillé en production) |
+| `[DIFFUSION RESTREINTE] ...` | 7 jours |
+
+Le module serveur [`modules/classification.py`](modules/classification.py) applique, sans jamais lire les messages :
+- **expiration automatique** : les messages trop anciens sont supprimés sur tous les appareils
+  (« Message supprimé »), puis leur contenu chiffré est effacé du serveur ;
+- **pas de déclassement** : impossible de retirer ou d'assouplir le niveau d'un salon ;
+- **pas de salon public** pour un salon classifié.
+
+Les durées se règlent dans `config/synapse/homeserver.yaml` (section `modules`).
+
 ## Comptes de démonstration (fictifs)
 
 Mot de passe commun : `Demo-Agent-2026!`. Au premier login, chaque agent enregistre une
@@ -61,3 +78,9 @@ docker compose run --rm admin revoquer ibrahim.sawadogo
 ```
 
 Pour la démo, http://chat2.localhost ouvre un second accès : deux agents côte à côte dans le même navigateur.
+
+## Tests automatisés
+
+```bash
+python -m unittest discover tests
+```

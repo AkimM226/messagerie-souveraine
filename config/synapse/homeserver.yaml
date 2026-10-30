@@ -71,5 +71,14 @@ user_directory:
   enabled: true
   search_all_users: true             # annuaire : tous les comptes sont des agents enrôlés
   prefer_local_users: true
-redaction_retention_period: 1d
+redaction_retention_period: 1h       # contenu (chiffré) d'un message supprimé effacé du serveur après 1 h
+
+# --- Innovation : classification des salons et expiration automatique (modules/classification.py) ---
+modules:
+  - module: classification.Classification
+    config:
+      intervalle: 30                       # vérification toutes les 30 s
+      niveaux:                             # préfixe du nom du salon -> durée de vie des messages (secondes)
+        "[CONFIDENTIEL]": 300              # 5 min pour la démonstration (24 h conseillé en production)
+        "[DIFFUSION RESTREINTE]": 604800   # 7 jours
 forgotten_room_retention_period: 1d

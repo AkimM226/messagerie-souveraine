@@ -30,8 +30,10 @@ services:
     entrypoint: ["/bin/sh", "/config/init.sh"]
     environment:
       SYNAPSE_CONFIG_PATH: /config/homeserver.yaml
+      PYTHONPATH: /modules
     volumes:
       - ./config/synapse:/config:ro
+      - ./modules:/modules:ro
       - synapse-data:/data
     depends_on:
       postgres:
