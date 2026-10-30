@@ -1,0 +1,88 @@
+# Messagerie souveraine de l'administration — installation en une commande :
+#   docker compose up -d
+# Accès : http://chat.localhost (messagerie) · http://auth.localhost/admin (gestion des agents)
+
+services:
+  # Point d'entrée unique. Les alias réseau permettent aux conteneurs de joindre
+  # les mêmes adresses que le navigateur (indispensable pour OpenID Connect).
+  proxy:
+    image: caddy:2.8.4-alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./config/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+    networks:
+      default:
+        aliases: [chat.localhost, matrix.localhost, auth.localhost]
+    depends_on: [element, synapse, keycloak]
+    restart: unless-stopped
+
+  # Client web : c'est LUI qui chiffre et déchiffre (Olm/Megolm), jamais le serveur.
+  element:
+    image: vectorim/element-web:v1.11.85
+    volumes:
+      - ./config/element/config.json:/app/config.json:ro
+    restart: unless-stopped
+
+  # Serveur Matrix : ne stocke que des messages et fichiers déjà chiffrés.
+  synapse:
+    image: matrixdotorg/synapse:v1.120.0
+    entrypoint: ["/bin/sh", "/config/init.sh"]
+    environment:
+      SYNAPSE_CONFIG_PATH: /config/homeserver.yaml
+    volumes:
+      - ./config/synapse:/config:ro
+      - synapse-data:/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: synapse
+      POSTGRES_PASSWORD: synapse  # ponytail: mot de passe de démo, réseau interne uniquement ; à changer en production
+      POSTGRES_DB: synapse
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --lc-collate=C --lc-ctype=C"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "synapse"]
+      interval: 5s
+      retries: 10
+    restart: unless-stopped
+
+  # Annuaire des agents enrôlés : second facteur (TOTP) obligatoire, rôles, désactivation.
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0.7
+    command: ["start-dev", "--import-realm"]
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN:-admin}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-ChangezMoi-2026}
+      KC_HOSTNAME: http://auth.localhost
+      KC_HTTP_ENABLED: "true"
+      KC_PROXY_HEADERS: xforwarded
+    volumes:
+      - ./config/keycloak/realm-administration.json:/opt/keycloak/data/import/realm-administration.json:ro
+      - keycloak-data:/opt/keycloak/data
+    restart: unless-stopped
+
+  # Outil d'administration (non démarré par défaut) :
+  #   docker compose run --rm admin revoquer <identifiant>
+  admin:
+    image: python:3.12-alpine
+    profiles: [outils]
+    working_dir: /scripts
+    entrypoint: ["python", "/scripts/admin.py"]
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-ChangezMoi-2026}
+      SYNAPSE_ADMIN_TOKEN: ${SYNAPSE_ADMIN_TOKEN:-}
+    volumes:
+      - ./scripts:/scripts:ro
+
+volumes:
+  synapse-data:
+  postgres-data:
+  keycloak-data:

@@ -1,0 +1,34 @@
+{
+    "default_server_config": {
+        "m.homeserver": {
+            "base_url": "http://matrix.localhost",
+            "server_name": "matrix.localhost"
+        }
+    },
+    "brand": "Messagerie souveraine",
+    "disable_custom_urls": true,
+    "disable_guests": true,
+    "disable_login_language_selector": false,
+    "disable_3pid_login": true,
+    "default_country_code": "BF",
+    "show_labs_settings": false,
+    "integrations_ui_url": "",
+    "integrations_rest_url": "",
+    "integrations_widgets_urls": [],
+    "bug_report_endpoint_url": null,
+    "jitsi": { "preferred_domain": "" },
+    "element_call": { "url": "", "use_exclusively": false },
+    "map_style_url": "",
+    "setting_defaults": {
+        "language": "fr",
+        "UIFeature.registration": false,
+        "UIFeature.passwordReset": false,
+        "UIFeature.thirdPartyId": false,
+        "UIFeature.identityServer": false,
+        "UIFeature.feedback": false,
+        "UIFeature.voip": false,
+        "UIFeature.widgets": false,
+        "UIFeature.urlPreviews": false
+    },
+    "room_directory": { "servers": ["matrix.localhost"] }
+}

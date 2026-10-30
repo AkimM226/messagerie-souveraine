@@ -1,0 +1,134 @@
+{
+  "realm": "administration",
+  "displayName": "Administration publique — Messagerie souveraine",
+  "enabled": true,
+  "sslRequired": "none",
+  "registrationAllowed": false,
+  "resetPasswordAllowed": false,
+  "rememberMe": false,
+  "bruteForceProtected": true,
+  "failureFactor": 5,
+  "internationalizationEnabled": true,
+  "supportedLocales": ["fr"],
+  "defaultLocale": "fr",
+  "otpPolicyType": "totp",
+  "otpPolicyAlgorithm": "HmacSHA1",
+  "otpPolicyDigits": 6,
+  "otpPolicyPeriod": 30,
+  "ssoSessionIdleTimeout": 86400,
+  "ssoSessionMaxLifespan": 2592000,
+  "requiredActions": [
+    {
+      "alias": "CONFIGURE_TOTP",
+      "name": "Configure OTP",
+      "providerId": "CONFIGURE_TOTP",
+      "enabled": true,
+      "defaultAction": true,
+      "priority": 10,
+      "config": {}
+    },
+    {
+      "alias": "UPDATE_PASSWORD",
+      "name": "Update Password",
+      "providerId": "UPDATE_PASSWORD",
+      "enabled": true,
+      "defaultAction": false,
+      "priority": 20,
+      "config": {}
+    }
+  ],
+  "roles": {
+    "realm": [
+      { "name": "agent", "description": "Agent public enrôlé : accès à la messagerie" },
+      { "name": "admin-securite", "description": "Peut enrôler et révoquer des agents" }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "synapse",
+      "name": "Messagerie souveraine",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "redirectUris": ["http://matrix.localhost/_synapse/client/oidc/callback"],
+      "webOrigins": ["http://matrix.localhost"],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "+"
+      },
+      "protocolMappers": [
+        {
+          "name": "roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "config": {
+            "claim.name": "roles",
+            "multivalued": "true",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "admin.securite",
+      "firstName": "Responsable",
+      "lastName": "Sécurité (fictif)",
+      "email": "admin.securite@demo.invalid",
+      "emailVerified": true,
+      "enabled": true,
+      "realmRoles": ["agent", "admin-securite"],
+      "requiredActions": ["CONFIGURE_TOTP"],
+      "credentials": [{ "type": "password", "value": "Demo-Agent-2026!", "temporary": false }]
+    },
+    {
+      "username": "awa.ouedraogo",
+      "firstName": "Awa",
+      "lastName": "Ouédraogo (fictif)",
+      "email": "awa.ouedraogo@demo.invalid",
+      "emailVerified": true,
+      "enabled": true,
+      "realmRoles": ["agent"],
+      "requiredActions": ["CONFIGURE_TOTP"],
+      "credentials": [{ "type": "password", "value": "Demo-Agent-2026!", "temporary": false }]
+    },
+    {
+      "username": "ibrahim.sawadogo",
+      "firstName": "Ibrahim",
+      "lastName": "Sawadogo (fictif)",
+      "email": "ibrahim.sawadogo@demo.invalid",
+      "emailVerified": true,
+      "enabled": true,
+      "realmRoles": ["agent"],
+      "requiredActions": ["CONFIGURE_TOTP"],
+      "credentials": [{ "type": "password", "value": "Demo-Agent-2026!", "temporary": false }]
+    },
+    {
+      "username": "fatimata.kabore",
+      "firstName": "Fatimata",
+      "lastName": "Kaboré (fictif)",
+      "email": "fatimata.kabore@demo.invalid",
+      "emailVerified": true,
+      "enabled": true,
+      "realmRoles": ["agent"],
+      "requiredActions": ["CONFIGURE_TOTP"],
+      "credentials": [{ "type": "password", "value": "Demo-Agent-2026!", "temporary": false }]
+    },
+    {
+      "username": "visiteur.intrus",
+      "firstName": "Visiteur",
+      "lastName": "Non enrôlé (fictif)",
+      "email": "visiteur.intrus@demo.invalid",
+      "emailVerified": true,
+      "enabled": true,
+      "realmRoles": [],
+      "credentials": [{ "type": "password", "value": "Demo-Agent-2026!", "temporary": false }]
+    }
+  ]
+}

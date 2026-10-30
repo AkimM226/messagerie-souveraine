@@ -1,0 +1,75 @@
+# Configuration Synapse — messagerie souveraine de l'administration
+server_name: "matrix.localhost"
+public_baseurl: "http://matrix.localhost/"
+pid_file: /data/homeserver.pid
+signing_key_path: /data/signing.key
+media_store_path: /data/media_store
+report_stats: false
+
+listeners:
+  - port: 8008
+    type: http
+    tls: false
+    x_forwarded: true
+    resources:
+      - names: [client]
+        compress: false
+
+database:
+  name: psycopg2
+  args:
+    user: synapse
+    password: synapse
+    database: synapse
+    host: postgres
+    cp_min: 5
+    cp_max: 10
+
+# --- Souveraineté : aucun service tiers ---
+federation_domain_whitelist: []      # fédération désactivée : aucun échange avec d'autres serveurs
+trusted_key_servers: []              # pas de dépendance à matrix.org
+suppress_key_server_warning: true
+url_preview_enabled: false           # le serveur ne va jamais chercher de liens à l'extérieur
+enable_3pid_lookup: false
+
+# --- Identité vérifiée : seuls les agents enrôlés dans Keycloak entrent ---
+enable_registration: false
+password_config:
+  enabled: false                     # pas de mot de passe local : uniquement via Keycloak (avec 2FA)
+oidc_providers:
+  - idp_id: keycloak
+    idp_name: "Connexion agent de l'État"
+    issuer: "http://auth.localhost/realms/administration"
+    client_id: "synapse"
+    client_auth_method: none         # client public + PKCE : aucun secret stocké
+    pkce_method: always
+    scopes: ["openid", "profile"]
+    # ponytail: issuer en HTTP pour la démo locale ; retirer cette ligne en HTTPS.
+    skip_verification: true
+    # Refuse toute personne qui n'a pas le rôle "agent" (ex. compte non enrôlé).
+    attribute_requirements:
+      - attribute: roles
+        value: agent
+    user_mapping_provider:
+      config:
+        localpart_template: "{{ user.preferred_username }}"
+        display_name_template: "{{ user.name }}"
+
+# --- Chiffrement de bout en bout par défaut dans tous les salons ---
+encryption_enabled_by_default_for_room_type: all
+
+# --- Minimisation des métadonnées ---
+presence:
+  enabled: false                     # pas de statut "en ligne / hors ligne"
+user_ips_max_age: 1d                 # adresses IP oubliées après 1 jour (28 jours par défaut)
+require_auth_for_profile_requests: true
+limit_profile_requests_to_users_who_share_rooms: true
+allow_public_rooms_without_auth: false
+allow_public_rooms_over_federation: false
+include_profile_data_on_invite: false
+user_directory:
+  enabled: true
+  search_all_users: true             # annuaire : tous les comptes sont des agents enrôlés
+  prefer_local_users: true
+redaction_retention_period: 1d
+forgotten_room_retention_period: 1d

@@ -1,0 +1,20 @@
+# ponytail: HTTP en local (les navigateurs traitent *.localhost comme sûr).
+# En production : remplacer par les vrais domaines, Caddy active alors HTTPS automatiquement
+# (ou "tls internal" avec l'autorité de certification de l'État).
+{
+	auto_https off
+}
+
+http://chat.localhost {
+	reverse_proxy element:80
+}
+
+http://matrix.localhost {
+	# L'API d'administration n'est jamais exposée : seul l'outil interne y accède.
+	respond /_synapse/admin/* 403
+	reverse_proxy synapse:8008
+}
+
+http://auth.localhost {
+	reverse_proxy keycloak:8080
+}
