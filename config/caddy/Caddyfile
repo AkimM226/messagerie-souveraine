@@ -5,7 +5,8 @@
 	auto_https off
 }
 
-http://chat.localhost {
+# chat2 : second accès au même client, pour faire tourner deux agents côte à côte (démo, tests).
+http://chat.localhost, http://chat2.localhost {
 	reverse_proxy element:80
 }
 

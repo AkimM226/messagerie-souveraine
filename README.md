@@ -49,6 +49,15 @@ application TOTP (FreeOTP, Aegis, Google Authenticator).
 
 ## Révoquer un agent
 
+Préparation (une seule fois) : se connecter avec `admin.securite`, puis
+1. lui donner les droits d'administration du serveur :
+   `docker compose exec postgres psql -U synapse -c "UPDATE users SET admin = 1 WHERE name = '@admin.securite:matrix.localhost';"`
+2. copier son jeton (Element > Paramètres > Aide et à propos > Jeton d'accès) dans `.env` (`SYNAPSE_ADMIN_TOKEN=...`).
+
+Révocation (immédiate, sur tous les appareils) :
+
 ```bash
-docker compose run --rm admin revoquer awa.ouedraogo
+docker compose run --rm admin revoquer ibrahim.sawadogo
 ```
+
+Pour la démo, http://chat2.localhost ouvre un second accès : deux agents côte à côte dans le même navigateur.

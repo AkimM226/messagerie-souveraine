@@ -18,7 +18,7 @@ import urllib.request
 KEYCLOAK = "http://keycloak:8080"  # accès direct : l'API admin est bloquée sur le proxy public
 SYNAPSE = "http://synapse:8008"   # accès direct, interne au réseau Docker (l'API admin n'est pas exposée)
 REALM = "administration"
-SERVER_NAME = "matrix.localhost"
+IDP_SYNAPSE = "oidc-keycloak"   # nom du fournisseur d'identité dans Synapse (idp_id préfixé "oidc-")
 
 
 def appel(methode, url, jeton=None, corps=None, formulaire=None):
@@ -64,13 +64,19 @@ def revoquer(identifiant):
     jeton_synapse = os.environ.get("SYNAPSE_ADMIN_TOKEN")
     if not jeton_synapse:
         sys.exit("SYNAPSE_ADMIN_TOKEN manquant dans .env : révocation Synapse NON effectuée.")
-    mxid = f"@{identifiant}:{SERVER_NAME}"
+    # On retrouve le compte Matrix par l'identifiant Keycloak (et non par le nom, qui peut
+    # avoir été réattribué) : on est sûr de révoquer exactement le compte de cet agent.
     try:
-        appel("POST", f"{SYNAPSE}/_synapse/admin/v1/deactivate/{urllib.parse.quote(mxid)}",
-              jeton_synapse, corps={"erase": False})
+        lien = appel("GET", f"{SYNAPSE}/_synapse/admin/v1/auth_providers/{IDP_SYNAPSE}/users/{agent_id}",
+                     jeton_synapse)
     except urllib.error.HTTPError as erreur:
-        if erreur.code != 404:   # 404 : l'agent ne s'était jamais connecté à la messagerie
+        if erreur.code != 404:
             raise
+        print("[Synapse] Aucun compte : l'agent ne s'était jamais connecté à la messagerie.")
+        return
+    mxid = lien["user_id"]
+    appel("POST", f"{SYNAPSE}/_synapse/admin/v1/deactivate/{urllib.parse.quote(mxid)}",
+          jeton_synapse, corps={"erase": False})
     print(f"[Synapse] {mxid} désactivé : appareils déconnectés, salons quittés.")
 
 

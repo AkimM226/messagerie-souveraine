@@ -103,7 +103,7 @@
     {
       "username": "admin.securite",
       "firstName": "Responsable",
-      "lastName": "Sécurité (fictif)",
+      "lastName": "Sécurité",
       "email": "admin.securite@demo.invalid",
       "emailVerified": true,
       "enabled": true,
@@ -114,7 +114,7 @@
     {
       "username": "awa.ouedraogo",
       "firstName": "Awa",
-      "lastName": "Ouédraogo (fictif)",
+      "lastName": "Ouédraogo",
       "email": "awa.ouedraogo@demo.invalid",
       "emailVerified": true,
       "enabled": true,
@@ -125,7 +125,7 @@
     {
       "username": "ibrahim.sawadogo",
       "firstName": "Ibrahim",
-      "lastName": "Sawadogo (fictif)",
+      "lastName": "Sawadogo",
       "email": "ibrahim.sawadogo@demo.invalid",
       "emailVerified": true,
       "enabled": true,
@@ -136,7 +136,7 @@
     {
       "username": "fatimata.kabore",
       "firstName": "Fatimata",
-      "lastName": "Kaboré (fictif)",
+      "lastName": "Kaboré",
       "email": "fatimata.kabore@demo.invalid",
       "emailVerified": true,
       "enabled": true,
@@ -147,7 +147,7 @@
     {
       "username": "visiteur.intrus",
       "firstName": "Visiteur",
-      "lastName": "Non enrôlé (fictif)",
+      "lastName": "Non enrôlé",
       "email": "visiteur.intrus@demo.invalid",
       "emailVerified": true,
       "enabled": true,
