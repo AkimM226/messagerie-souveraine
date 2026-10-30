@@ -16,5 +16,8 @@ http://matrix.localhost {
 }
 
 http://auth.localhost {
+	# Console d'administration jamais exposée : accessible seulement sur le poste serveur (localhost:8081).
+	respond /admin* 403
+	respond /realms/master* 403
 	reverse_proxy keycloak:8080
 }

@@ -32,7 +32,7 @@ Niveau d'engagement : **Étendre et adapter**. Notre code : MIT (voir `LICENSE`)
 docker compose up -d
 ```
 
-Puis ouvrir http://chat.localhost.
+Puis ouvrir http://chat.localhost. Gestion des agents (poste serveur uniquement) : http://localhost:8081/admin.
 
 ## Comptes de démonstration (fictifs)
 

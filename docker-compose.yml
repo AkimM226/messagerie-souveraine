@@ -1,6 +1,6 @@
 # Messagerie souveraine de l'administration — installation en une commande :
 #   docker compose up -d
-# Accès : http://chat.localhost (messagerie) · http://auth.localhost/admin (gestion des agents)
+# Accès : http://chat.localhost (messagerie) · http://localhost:8081/admin (gestion des agents, poste serveur)
 
 services:
   # Point d'entrée unique. Les alias réseau permettent aux conteneurs de joindre
@@ -61,8 +61,11 @@ services:
       KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN:-admin}
       KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-ChangezMoi-2026}
       KC_HOSTNAME: http://auth.localhost
+      KC_HOSTNAME_ADMIN: http://localhost:8081
       KC_HTTP_ENABLED: "true"
       KC_PROXY_HEADERS: xforwarded
+    ports:
+      - "127.0.0.1:8081:8080"   # console d'administration : poste serveur uniquement
     volumes:
       - ./config/keycloak/realm-administration.json:/opt/keycloak/data/import/realm-administration.json:ro
       - keycloak-data:/opt/keycloak/data

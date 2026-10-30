@@ -17,6 +17,30 @@
   "otpPolicyPeriod": 30,
   "ssoSessionIdleTimeout": 86400,
   "ssoSessionMaxLifespan": 2592000,
+  "browserFlow": "navigateur-2fa",
+  "authenticationFlows": [
+    {
+      "alias": "navigateur-2fa",
+      "description": "Mot de passe ET code TOTP toujours exigés (pas d'OTP conditionnel)",
+      "providerId": "basic-flow",
+      "topLevel": true,
+      "builtIn": false,
+      "authenticationExecutions": [
+        { "authenticator": "auth-cookie", "authenticatorFlow": false, "requirement": "ALTERNATIVE", "priority": 10, "userSetupAllowed": false },
+        { "authenticatorFlow": true, "flowAlias": "formulaires-2fa", "requirement": "ALTERNATIVE", "priority": 20, "userSetupAllowed": false }
+      ]
+    },
+    {
+      "alias": "formulaires-2fa",
+      "providerId": "basic-flow",
+      "topLevel": false,
+      "builtIn": false,
+      "authenticationExecutions": [
+        { "authenticator": "auth-username-password-form", "authenticatorFlow": false, "requirement": "REQUIRED", "priority": 10, "userSetupAllowed": false },
+        { "authenticator": "auth-otp-form", "authenticatorFlow": false, "requirement": "REQUIRED", "priority": 20, "userSetupAllowed": false }
+      ]
+    }
+  ],
   "requiredActions": [
     {
       "alias": "CONFIGURE_TOTP",

@@ -15,7 +15,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
-KEYCLOAK = "http://auth.localhost"
+KEYCLOAK = "http://keycloak:8080"  # accès direct : l'API admin est bloquée sur le proxy public
 SYNAPSE = "http://synapse:8008"   # accès direct, interne au réseau Docker (l'API admin n'est pas exposée)
 REALM = "administration"
 SERVER_NAME = "matrix.localhost"
