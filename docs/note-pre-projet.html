@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Note de pré-projet — Messagerie souveraine</title>
+<link rel="stylesheet" href="note.css">
+</head>
+<body>
+<header>
+  <p class="surtitre">Hackathon 226 – Sprint technique pré-hackathon 2026 · Note de pré-projet</p>
+  <h1>Messagerie souveraine de l'administration</h1>
+  <p class="meta">Équipe : <b>[NOM DE L'ÉQUIPE]</b> · [UNIVERSITÉ] · Dépôt : github.com/AkimM226/messagerie-souveraine</p>
+</header>
+
+<h2>1. Concept</h2>
+<p>Une messagerie instantanée (messages, groupes, fichiers) <b>aussi simple que les applications grand public</b>,
+mais réservée aux agents publics enrôlés et <b>entièrement hébergée sur l'infrastructure de l'État</b>.
+Le serveur transporte et stocke des messages qu'il ne peut pas lire : seuls les appareils des agents détiennent les clés.
+Aucune donnée ne quitte le pays, aucun service tiers n'est nécessaire, et l'installation tient en une commande.</p>
+
+<h2>2. Architecture</h2>
+<div class="schema">Navigateur ou mobile de l'agent (Element) ── chiffre / déchiffre ──►  <b>Caddy</b> (point d'entrée HTTPS)
+                                                               ├─► <b>Synapse</b> (serveur Matrix) ─► <b>PostgreSQL</b>
+                                                               │      + module « classification » (innovation)
+                                                               └─► <b>Keycloak</b> (annuaire des agents, 2FA, rôles)</div>
+<ul>
+  <li><b>Element</b> (client) chiffre chaque message et chaque fichier <i>avant</i> l'envoi.</li>
+  <li><b>Synapse</b> (serveur) relaie et stocke des données déjà chiffrées ; fédération désactivée : il ne parle à aucun autre serveur.</li>
+  <li><b>Keycloak</b> est la seule porte d'entrée : mot de passe + code TOTP, rôles, désactivation. Synapse n'a aucun mot de passe local.</li>
+  <li><b>Docker Compose</b> : <code>docker compose up -d</code> démarre les cinq services, sans dépendance externe.</li>
+</ul>
+
+<h2>3. Protocole de chiffrement retenu : Matrix (Olm / Megolm)</h2>
+<p><b>Olm</b> (double ratchet, comme Signal) établit un canal chiffré entre deux appareils ; <b>Megolm</b> chiffre les messages de groupe
+avec une clé de session partagée via Olm à chaque appareil membre. Quand un membre quitte le groupe (ou est révoqué),
+les autres appareils <b>génèrent une nouvelle clé</b> : il ne peut plus lire les messages suivants. L'implémentation utilisée est
+celle du client Element : <i>vodozemac</i>, implémentation Rust d'Olm/Megolm auditée, via <i>matrix-sdk-crypto</i>. <b>L'équipe n'a écrit aucune ligne de cryptographie.</b></p>
+
+<h2>4. Composants open source et licences</h2>
+<table>
+  <tr><th>Composant</th><th>Rôle</th><th>Licence</th></tr>
+  <tr><td>Element Web 1.11.85</td><td>Client, chiffrement Olm/Megolm</td><td>AGPL-3.0 / GPL-3.0</td></tr>
+  <tr><td>Synapse 1.120.0</td><td>Serveur Matrix</td><td>AGPL-3.0</td></tr>
+  <tr><td>Keycloak 26.0.7</td><td>Identité, 2FA (TOTP), rôles, révocation</td><td>Apache-2.0</td></tr>
+  <tr><td>PostgreSQL 16</td><td>Base de données</td><td>PostgreSQL License</td></tr>
+  <tr><td>Caddy 2.8</td><td>Proxy inverse, HTTPS</td><td>Apache-2.0</td></tr>
+  <tr><td>Notre code (configuration, module, outil de révocation, tests)</td><td>—</td><td>MIT</td></tr>
+</table>
+
+<h2>5. Niveau d'engagement open source : « Étendre et adapter »</h2>
+<p>Nous assemblons des briques éprouvées et les adaptons aux exigences de l'administration : configuration durcie
+(aucun service tiers, métadonnées réduites), enrôlement obligatoire par rôle, outil de révocation et
+<b>module serveur original</b> de classification. Contribution prévue : traduction de l'interface d'Element en langue nationale (mooré)
+soumise au projet d'origine.</p>
+
+<h2>6. Fonctionnalités innovantes</h2>
+<ul>
+  <li><b>Salons classifiés à expiration automatique.</b> Un agent nomme son salon <code>[CONFIDENTIEL] …</code> ou
+    <code>[DIFFUSION RESTREINTE] …</code>. Le serveur, sans jamais lire les messages, les supprime automatiquement de tous
+    les appareils au-delà de la durée fixée par le niveau (ex. 24 h / 7 jours), interdit le déclassement du salon
+    et son ouverture au public. Une conversation sensible ne laisse ainsi aucune trace durable.</li>
+  <li><b>Révocation en une commande</b> (<code>docker compose run --rm admin revoquer &lt;agent&gt;</code>) : compte désactivé,
+    toutes les sessions fermées, tous les appareils déconnectés, retrait de tous les groupes — en moins de 3 secondes.</li>
+  <li><b>Annuaire des agents</b> : tout agent enrôlé peut trouver un collègue ; aucun compte extérieur n'y figure.</li>
+</ul>
+
+<h2>7. Répartition des rôles</h2>
+<table>
+  <tr><th>Membre</th><th>Rôle</th></tr>
+  <tr><td>[MEMBRE 3 — nom, filière, niveau]</td><td>Responsable technique : déploiement Docker, Synapse, Keycloak, module de classification</td></tr>
+  <tr><td>Mohamed BAMBA — [filière, niveau]</td><td>Documentation (README, notes), sécurité et métadonnées, vidéo de démonstration</td></tr>
+  <tr><td>[MEMBRE 2 — nom, filière, niveau]</td><td>Tests de la démonstration, comptes fictifs, traduction en mooré</td></tr>
+</table>
+<p class="note">Chaque membre est en mesure d'expliquer le chiffrement, l'authentification et la révocation.</p>
+</body>
+</html>
