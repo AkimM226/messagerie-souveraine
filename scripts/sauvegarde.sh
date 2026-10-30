@@ -9,13 +9,14 @@
 # Une sauvegarde contient des clés privées du serveur : la garder sur un support chiffré, hors ligne.
 # Aucune clé de déchiffrement des messages n'y figure : elles ne quittent jamais les appareils des agents.
 set -eu
+umask 077                   # sauvegardes lisibles par leur seul propriétaire (elles contiennent des clés privées)
 export MSYS_NO_PATHCONV=1   # Git Bash (Windows) : ne pas transformer les chemins des conteneurs
 cd "$(dirname "$0")/.."
 projet=$(docker compose config --format json | sed -n 's/^ *"name": *"\([^"]*\)".*/\1/p' | head -1)
 volume() { echo "${projet}_$1"; }
 tar_volume() {   # tar_volume <volume> <c|x> <archive dans le dossier courant de sauvegarde>
 	docker run --rm -v "$(volume "$1"):/v" -v "$PWD/$dossier:/sauvegarde" alpine:3.20 \
-		sh -c "cd /v && tar $2zf /sauvegarde/$3 ."
+		sh -c "umask 077 && cd /v && tar $2zf /sauvegarde/$3 ."
 }
 
 if [ "${1:-}" = "restaurer" ]; then
@@ -37,7 +38,7 @@ if [ "${1:-}" = "restaurer" ]; then
 fi
 
 dossier="sauvegardes/$(date +%Y%m%d-%H%M%S)"
-mkdir -p "$dossier"
+mkdir -p -m 700 "$dossier"
 docker compose exec -T postgres pg_dump -U synapse -Fc synapse > "$dossier/base.dump"
 tar_volume synapse-data c synapse-data.tgz
 tar_volume caddy-data c caddy-data.tgz
