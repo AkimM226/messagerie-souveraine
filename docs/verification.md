@@ -40,6 +40,7 @@ dans le navigateur : « You are not allowed to log in here ».
 4. `sh scripts/verifier.sh contenu "<mot du titre>"` : 0 occurrence ; même le type « bf.gouv.circuit » est invisible.
 
 Les agents doivent être connectés au salon **avant** l'envoi de l'instruction (chiffrement de bout en bout).
+Si le circuit reste sur « Chargement… », recharger la page (F5) : anomalie intermittente d'Element 1.11.85 au démarrage.
 Seuls les clics des destinataires comptent comme accusés, pas les confirmations de lecture automatiques d'Element.
 
 ## 5. Classification et rôles
