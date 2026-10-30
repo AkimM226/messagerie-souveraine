@@ -8,6 +8,7 @@
   "rememberMe": false,
   "bruteForceProtected": true,
   "failureFactor": 5,
+  "permanentLockout": false,
   "internationalizationEnabled": true,
   "supportedLocales": ["fr"],
   "defaultLocale": "fr",
@@ -15,6 +16,13 @@
   "otpPolicyAlgorithm": "HmacSHA1",
   "otpPolicyDigits": 6,
   "otpPolicyPeriod": 30,
+  "eventsEnabled": true,
+  "eventsExpiration": 2592000,
+  "eventsListeners": ["jboss-logging"],
+  "enabledEventTypes": ["LOGIN", "LOGIN_ERROR", "LOGOUT", "CODE_TO_TOKEN_ERROR", "UPDATE_TOTP", "REMOVE_TOTP",
+                        "UPDATE_PASSWORD", "USER_DISABLED_BY_TEMPORARY_LOCKOUT", "USER_DISABLED_BY_PERMANENT_LOCKOUT"],
+  "adminEventsEnabled": true,
+  "adminEventsDetailsEnabled": true,
   "ssoSessionIdleTimeout": 86400,
   "ssoSessionMaxLifespan": 2592000,
   "browserFlow": "navigateur-2fa",
@@ -64,7 +72,13 @@
   "roles": {
     "realm": [
       { "name": "agent", "description": "Agent public enrôlé : accès à la messagerie" },
-      { "name": "admin-securite", "description": "Peut enrôler et révoquer des agents" }
+      { "name": "responsable", "description": "Crée les salons classifiés et transmet les communications administratives" },
+      {
+        "name": "admin-securite",
+        "description": "Administrateur : enrôle, modifie et révoque les agents, consulte le journal (console du realm)",
+        "composite": true,
+        "composites": { "client": { "realm-management": ["manage-users", "view-users", "query-users", "view-events"] } }
+      }
     ]
   },
   "clients": [
@@ -97,9 +111,35 @@
           }
         }
       ]
+    },
+    {
+      "clientId": "synapse-annuaire",
+      "name": "Synapse : lecture de l'annuaire",
+      "enabled": true,
+      "publicClient": false,
+      "secret": "${KEYCLOAK_ANNUAIRE_SECRET}",
+      "serviceAccountsEnabled": true,
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false
     }
   ],
+  "components": {
+    "org.keycloak.userprofile.UserProfileProvider": [
+      {
+        "providerId": "declarative-user-profile",
+        "subComponents": {},
+        "config": { "kc.user.profile.config": ["{\"attributes\":[{\"name\":\"username\",\"displayName\":\"Identifiant\",\"validations\":{\"length\":{\"min\":3,\"max\":255},\"username-prohibited-characters\":{},\"up-username-not-idn-homograph\":{}},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\"]},\"multivalued\":false},{\"name\":\"email\",\"displayName\":\"Courriel\",\"validations\":{\"email\":{},\"length\":{\"max\":255}},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\"]},\"multivalued\":false},{\"name\":\"firstName\",\"displayName\":\"Prénom\",\"validations\":{\"length\":{\"max\":255},\"person-name-prohibited-characters\":{}},\"required\":{\"roles\":[\"user\"]},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\"]},\"multivalued\":false},{\"name\":\"lastName\",\"displayName\":\"Nom\",\"validations\":{\"length\":{\"max\":255},\"person-name-prohibited-characters\":{}},\"required\":{\"roles\":[\"user\"]},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\"]},\"multivalued\":false},{\"name\":\"ministere\",\"displayName\":\"Ministère\",\"validations\":{\"length\":{\"max\":120}},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\"]},\"multivalued\":false},{\"name\":\"direction\",\"displayName\":\"Direction / service\",\"validations\":{\"length\":{\"max\":120}},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\"]},\"multivalued\":false},{\"name\":\"fonction\",\"displayName\":\"Fonction\",\"validations\":{\"length\":{\"max\":120}},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\"]},\"multivalued\":false}],\"groups\":[{\"name\":\"user-metadata\",\"displayHeader\":\"User metadata\",\"displayDescription\":\"Attributes, which refer to user metadata\"}]}"] }
+      }
+    ]
+  },
   "users": [
+    {
+      "username": "service-account-synapse-annuaire",
+      "enabled": true,
+      "serviceAccountClientId": "synapse-annuaire",
+      "clientRoles": { "realm-management": ["view-users", "query-users", "view-realm"] }
+    },
     {
       "username": "admin.securite",
       "firstName": "Responsable",
@@ -107,7 +147,8 @@
       "email": "admin.securite@demo.invalid",
       "emailVerified": true,
       "enabled": true,
-      "realmRoles": ["agent", "admin-securite"],
+      "attributes": { "ministere": ["MTDPCE"], "direction": ["Direction des systèmes d'information"], "fonction": ["Administrateur sécurité"] },
+            "realmRoles": ["agent", "admin-securite"],
       "requiredActions": ["CONFIGURE_TOTP"],
       "credentials": [{ "type": "password", "value": "Demo-Agent-2026!", "temporary": false }]
     },
@@ -118,7 +159,8 @@
       "email": "awa.ouedraogo@demo.invalid",
       "emailVerified": true,
       "enabled": true,
-      "realmRoles": ["agent"],
+      "attributes": { "ministere": ["MTDPCE"], "direction": ["Direction des ressources humaines"], "fonction": ["Cheffe de service"] },
+      "realmRoles": ["agent", "responsable"],
       "requiredActions": ["CONFIGURE_TOTP"],
       "credentials": [{ "type": "password", "value": "Demo-Agent-2026!", "temporary": false }]
     },
@@ -129,7 +171,8 @@
       "email": "ibrahim.sawadogo@demo.invalid",
       "emailVerified": true,
       "enabled": true,
-      "realmRoles": ["agent"],
+      "attributes": { "ministere": ["MTDPCE"], "direction": ["Direction des ressources humaines"], "fonction": ["Gestionnaire du personnel"] },
+            "realmRoles": ["agent"],
       "requiredActions": ["CONFIGURE_TOTP"],
       "credentials": [{ "type": "password", "value": "Demo-Agent-2026!", "temporary": false }]
     },
@@ -140,7 +183,8 @@
       "email": "fatimata.kabore@demo.invalid",
       "emailVerified": true,
       "enabled": true,
-      "realmRoles": ["agent"],
+      "attributes": { "ministere": ["Ministère de la Santé"], "direction": ["Direction régionale du Centre"], "fonction": ["Chargée de communication"] },
+            "realmRoles": ["agent"],
       "requiredActions": ["CONFIGURE_TOTP"],
       "credentials": [{ "type": "password", "value": "Demo-Agent-2026!", "temporary": false }]
     },

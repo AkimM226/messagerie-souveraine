@@ -5,10 +5,16 @@ Pour chaque niveau, le serveur applique des règles sans jamais lire les message
   - expiration : chaque message plus vieux que la durée du niveau est supprimé (rédaction Matrix),
     ce qui le fait disparaître sur tous les appareils et retire le contenu chiffré du serveur ;
   - pas de déclassement : on ne peut pas renommer le salon vers un niveau moins protégé ;
-  - pas de salon public : un salon classifié ne peut pas être ouvert à tous.
+  - pas de salon public : un salon classifié ne peut pas être ouvert à tous ;
+  - seuls les responsables (rôle Keycloak « responsable », voir annuaire.py) peuvent classifier un salon ;
+  - pas de réaction (emoji) dans un salon classifié : Matrix les transmet en clair ;
+  - le circuit administratif (widget) est ajouté et épinglé en haut du salon dès sa classification.
+Dans tous les salons chiffrés, le serveur refuse aussi tout message envoyé en clair.
 """
 import logging
 import time
+
+import annuaire
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +41,9 @@ class Classification:
     def __init__(self, config, api):
         self.api = api
         self.niveaux = config["niveaux"]   # préfixe -> durée de vie des messages, en secondes
-        api.register_third_party_rules_callbacks(check_event_allowed=self.verifier_evenement)
+        self.circuit = config.get("circuit")   # adresse du widget du circuit administratif
+        api.register_third_party_rules_callbacks(check_event_allowed=self.verifier_evenement,
+                                                 on_new_event=self.installer_circuit)
         api.looping_background_call(self.faire_expirer, config.get("intervalle", 30) * 1000,
                                     desc="expiration_salons_classifies")
 
@@ -44,13 +52,19 @@ class Classification:
         return config
 
     async def verifier_evenement(self, evenement, etat):
+        # Un client mal configuré ou malveillant ne peut pas glisser un message en clair dans un salon chiffré.
+        if evenement.type == "m.room.message" and ("m.room.encryption", "") in etat:
+            return False, None
+
         evenement_nom = etat.get(("m.room.name", ""))
         nom_actuel = evenement_nom.content.get("name") if evenement_nom else None
 
         if niveau_du_nom(nom_actuel, self.niveaux) is None:
-            # Classifier un salon : seulement s'il est vide (sinon tout l'historique serait détruit
-            # rétroactivement) et non public.
+            # Classifier un salon : seulement par un responsable, si le salon est vide (sinon tout
+            # l'historique serait détruit rétroactivement) et non public.
             if evenement.type == "m.room.name" and niveau_du_nom(evenement.content.get("name"), self.niveaux):
+                if evenement.sender not in annuaire.RESPONSABLES:
+                    return False, None
                 regles = etat.get(("m.room.join_rules", ""))
                 if regles and regles.content.get("join_rule") == "public":
                     return False, None
@@ -63,10 +77,26 @@ class Classification:
             return False, None
         if evenement.type == "m.room.join_rules" and evenement.content.get("join_rule") == "public":
             return False, None
+        if evenement.type == "m.reaction":
+            return False, None
         # Supprimer l'événement qui porte le nom ferait revenir l'ancien nom : ce serait un déclassement.
         if evenement.type == "m.room.redaction" and evenement.redacts == evenement_nom.event_id:
             return False, None
         return True, None
+
+    async def installer_circuit(self, evenement, etat):
+        if (evenement.type != "m.room.name" or not self.circuit
+                or not niveau_du_nom(evenement.content.get("name"), self.niveaux)
+                or ("im.vector.modular.widgets", "circuit") in etat):
+            return
+        widget = {"id": "circuit", "type": "m.custom", "name": "Circuit administratif", "url": self.circuit,
+                  "data": {}, "waitForIframeLoad": True, "creatorUserId": evenement.sender}
+        disposition = {"widgets": {"circuit": {"container": "top", "index": 0, "width": 100, "height": 45}}}
+        for type_, cle, contenu in (("im.vector.modular.widgets", "circuit", widget),
+                                    ("io.element.widgets.layout", "", disposition)):
+            await self.api.create_and_send_event_into_room({
+                "type": type_, "state_key": cle, "room_id": evenement.room_id,
+                "sender": evenement.sender, "content": contenu})
 
     @staticmethod
     def _a_des_messages(txn, salon):

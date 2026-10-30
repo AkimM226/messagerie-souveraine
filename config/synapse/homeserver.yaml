@@ -36,6 +36,12 @@ enable_3pid_lookup: false
 enable_registration: false
 password_config:
   enabled: false                     # pas de mot de passe local : uniquement via Keycloak (avec 2FA)
+rc_login:
+  # Un ministère sort souvent par une seule adresse IP (NAT) : la limite par défaut (5 connexions puis
+  # 1 toutes les 5 min) bloquerait les agents. Les mots de passe, eux, sont protégés par Keycloak.
+  address:
+    per_second: 0.5
+    burst_count: 20
 oidc_providers:
   - idp_id: keycloak
     idp_name: "Connexion agent de l'État"
@@ -79,11 +85,21 @@ user_directory:
   prefer_local_users: true
 redaction_retention_period: 1h       # contenu (chiffré) d'un message supprimé effacé du serveur après 1 h
 
-# --- Innovation : classification des salons et expiration automatique (modules/classification.py) ---
+enable_set_displayname: false        # nom affiché = fiche de l'annuaire (personne ne peut se faire passer pour un autre)
+
 modules:
+  # L'annuaire Keycloak fait foi : révocations, noms affichés, liste des responsables (modules/annuaire.py).
+  - module: annuaire.Annuaire
+    config:
+      keycloak: "http://keycloak:8080"
+      realm: administration
+      client_id: synapse-annuaire          # client en lecture seule ; secret : KEYCLOAK_ANNUAIRE_SECRET
+      intervalle: 5                        # secondes
+  # Innovation : classification des salons et expiration automatique (modules/classification.py).
   - module: classification.Classification
     config:
       intervalle: 30                       # vérification toutes les 30 s
+      circuit: "https://circuit.localhost/?user=$matrix_user_id"   # widget ajouté aux salons classifiés
       niveaux:                             # préfixe du nom du salon -> durée de vie des messages (secondes)
         "[CONFIDENTIEL]": 300              # 5 min pour la démonstration (24 h conseillé en production)
         "[DIFFUSION RESTREINTE]": 604800   # 7 jours

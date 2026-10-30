@@ -11,7 +11,12 @@ services:
       - "443:443"
     volumes:
       - ./config/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./circuit:/srv/circuit:ro
       - caddy-data:/data
+    networks:
+      default:
+        # Sur le réseau interne aussi, ces noms mènent au proxy (utilisé par les tests de sécurité).
+        aliases: [chat.localhost, matrix.localhost, auth.localhost, circuit.localhost]
     depends_on: [element, synapse, keycloak]
     restart: unless-stopped
 
@@ -29,6 +34,7 @@ services:
     environment:
       SYNAPSE_CONFIG_PATH: /config/homeserver.yaml
       PYTHONPATH: /modules
+      KEYCLOAK_ANNUAIRE_SECRET: ${KEYCLOAK_ANNUAIRE_SECRET:-Demo-Annuaire-2026}
     volumes:
       - ./config/synapse:/config:ro
       - ./modules:/modules:ro
@@ -65,6 +71,7 @@ services:
       KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"   # Synapse et l'outil admin parlent à keycloak:8080 en interne
       KC_HTTP_ENABLED: "true"
       KC_PROXY_HEADERS: xforwarded
+      KEYCLOAK_ANNUAIRE_SECRET: ${KEYCLOAK_ANNUAIRE_SECRET:-Demo-Annuaire-2026}   # lu à l'import du realm
     ports:
       - "127.0.0.1:8081:8080"   # console d'administration : poste serveur uniquement
     volumes:
@@ -85,6 +92,22 @@ services:
       SYNAPSE_ADMIN_TOKEN: ${SYNAPSE_ADMIN_TOKEN:-}
     volumes:
       - ./scripts:/scripts:ro
+
+  # Tests de sécurité sur la pile en marche (non démarré par défaut) :
+  #   docker compose run --rm tests
+  tests:
+    image: python:3.12-alpine
+    profiles: [outils]
+    working_dir: /tests
+    entrypoint: ["python", "-m", "unittest", "-v"]
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-ChangezMoi-2026}
+    volumes:
+      - ./tests:/tests:ro
+      - ./modules:/modules:ro
+      - caddy-data:/caddy:ro   # autorité de certification interne, pour vérifier le HTTPS
+    depends_on: [proxy]
 
 volumes:
   caddy-data:
