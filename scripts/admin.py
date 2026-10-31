@@ -101,9 +101,10 @@ def revoquer(identifiant):
         lien = appel("GET", f"{SYNAPSE}/_synapse/admin/v1/auth_providers/{IDP_SYNAPSE}/users/{agent_id}",
                      jeton_synapse)
     except urllib.error.HTTPError as erreur:
-        if erreur.code != 404:
-            raise
-        print("[Synapse] Aucun compte : l'agent ne s'était jamais connecté à la messagerie.")
+        if erreur.code == 404:
+            print("[Synapse] Aucun compte : l'agent ne s'était jamais connecté à la messagerie.")
+        else:   # jeton périmé ou sans droits d'administration : Keycloak est déjà fait, le module annuaire suit
+            print(f"[Synapse] Jeton d'administration refusé ({erreur.code}) : le module annuaire coupe ses sessions sous 5 s.")
         return
     mxid = lien["user_id"]
     appel("POST", f"{SYNAPSE}/_synapse/admin/v1/deactivate/{urllib.parse.quote(mxid)}",

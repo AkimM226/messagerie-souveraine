@@ -1,31 +1,25 @@
 # Messagerie souveraine de l'administration
 
 Messagerie instantanée chiffrée de bout en bout pour les agents publics du Burkina Faso, hébergée sur
-l'infrastructure de l'État, sans aucun service tiers. Projet du sprint pré-hackathon — Hackathon 226, édition 2026.
+l'infrastructure de l'État, sans aucun service tiers. Sprint pré-hackathon — Hackathon 226, édition 2026.
 
 ## Fonctionnalités
 
 - **Messages, groupes et fichiers chiffrés de bout en bout** (Matrix Olm/Megolm) : le serveur ne stocke que du chiffré
   et refuse tout message envoyé en clair dans un salon chiffré.
-- **Enrôlement contrôlé** : pas d'inscription libre ; seuls les agents créés par un administrateur dans Keycloak,
-  avec le rôle `agent`, entrent. **Second facteur TOTP obligatoire** à chaque connexion (aucune session réutilisée, même sur un poste
-  partagé ; se déconnecter d'Element ferme aussi la session Keycloak), blocage après 5 échecs.
-- **Rôles vérifiés par le serveur** : `agent`, `responsable` (seul habilité à créer un salon classifié), `admin-securite`
-  (enrôle, révoque, consulte le journal dans la console Keycloak du domaine).
-- **Révocation centralisée** : désactiver un agent dans la console (ou en une commande) coupe toutes ses sessions sur
-  tous ses appareils en moins de 5 s ; il quitte ses groupes et les autres membres changent de clé de groupe.
-- **Innovation — circuit administratif chiffré** : instructions de service, notes, convocations, demandes d'action,
-  avec priorité, échéance et **accusés de prise de connaissance** (Reçu, Pris connaissance, En cours, Exécuté,
-  Clarification) et un tableau de suivi pour l'émetteur. Tout reste chiffré : le serveur ne distingue même pas
-  une instruction d'un message ordinaire.
-- **Classification** : `[DIFFUSION RESTREINTE]` et `[CONFIDENTIEL]` en tête du nom d'un salon → expiration
-  automatique des messages, pas de déclassement, pas de salon public, pas de réaction (transmise en clair par Matrix),
-  filigrane nominatif sur les communications confidentielles. Sans préfixe : niveau standard.
-- **Annuaire institutionnel** alimenté par les administrateurs : chaque agent apparaît sous la forme
-  « Prénom Nom · fonction · direction · ministère », recherchable dans Element ; un agent ne peut pas changer son nom.
-- **Journal administratif** (enrôlements, révocations, connexions ; aucun contenu), **sauvegarde et restauration**.
-- **Identité visuelle institutionnelle** : un design system unique (`design/jetons.css` : navy, émeraude, or, police Inter
-  hébergée localement) appliqué au thème d'Element, à la page de connexion (thème Keycloak `souverain`) et au circuit.
+- **Enrôlement et 2FA** : pas d'inscription libre ; seuls les agents créés dans Keycloak avec le rôle `agent` entrent.
+  Mot de passe **et** code TOTP à chaque connexion ; la déconnexion ferme aussi la session Keycloak (poste partagé).
+- **Rôles vérifiés par le serveur** : `agent`, `responsable` (seul à créer un salon classifié), `admin-securite`
+  (enrôle, révoque, consulte le journal dans la console Keycloak).
+- **Révocation centralisée** : désactiver un agent coupe ses sessions sur tous ses appareils en moins de 5 s ;
+  il quitte ses groupes, dont les membres changent de clé.
+- **Innovation — circuit administratif chiffré** : instructions, notes, convocations, demandes d'action avec priorité,
+  échéance et accusés (Reçu, Pris connaissance, En cours, Exécuté, Clarification) suivis par l'émetteur. Le serveur ne
+  distingue même pas une instruction d'un message ordinaire.
+- **Classification** : dans un salon `[DIFFUSION RESTREINTE] …` ou `[CONFIDENTIEL] …`, les messages expirent ; ni
+  déclassement, ni salon public, ni réaction (non chiffrée) ; filigrane nominatif ; le circuit s'affiche en haut du salon.
+- **Annuaire institutionnel** imposé par l'administration (« Prénom Nom · fonction · direction · ministère »),
+  **journal** sans contenu, **sauvegarde**, identité visuelle commune (`design/jetons.css`).
 
 ## Architecture
 
@@ -44,40 +38,33 @@ Caddy (point d'entrée, autorité de certification interne)
 
 | Composant | Rôle | Licence |
 |---|---|---|
-| Element Web 1.11.85 | Client, chiffrement Olm/Megolm (vodozemac) | AGPL-3.0 / GPL-3.0 |
-| Synapse 1.120.0 | Serveur Matrix | AGPL-3.0 |
-| Keycloak 26.0.7 | Identité, TOTP, rôles, journal | Apache-2.0 |
-| PostgreSQL 16 | Base de données | PostgreSQL License |
-| Caddy 2.8.4 | Proxy inverse, HTTPS | Apache-2.0 |
-| matrix-widget-api 1.10.0 | Dialogue widget ↔ Element (fichier dans `circuit/vendor/`) | Apache-2.0 |
-| Inter 4 (fontsource 5.1.0) | Police de l'interface (fichiers dans `design/polices/`) | OFL-1.1 |
+| [Element Web](https://github.com/element-hq/element-web) 1.11.85 | Client, chiffrement Olm/Megolm (vodozemac) | AGPL-3.0 / GPL-3.0 |
+| [Synapse](https://github.com/element-hq/synapse) 1.120.0 | Serveur Matrix | AGPL-3.0 |
+| [Keycloak](https://www.keycloak.org) 26.0.7 | Identité, TOTP, rôles, journal | Apache-2.0 |
+| [PostgreSQL](https://www.postgresql.org) 16 | Base de données | PostgreSQL License |
+| [Caddy](https://caddyserver.com) 2.8.4 | Proxy inverse, HTTPS | Apache-2.0 |
+| [matrix-widget-api](https://github.com/matrix-org/matrix-widget-api) 1.10.0 | Widget ↔ Element (`circuit/vendor/`) | Apache-2.0 |
+| [Inter](https://rsms.me/inter/) 4 | Police de l'interface (`design/polices/`) | OFL-1.1 |
+| [Docker Compose](https://github.com/docker/compose) · [Python](https://www.python.org) 3.12 | Installation · modules, outils, tests | Apache-2.0 · PSF-2.0 |
 
-**Chiffrement** : Matrix Olm (double ratchet entre appareils) et Megolm (groupes), implémentés par Element ;
-le widget du circuit ne fait aucune cryptographie, Element chiffre ce qu'il envoie. **Aucune cryptographie écrite par l'équipe.**
-
-**Engagement open source : « Étendre et adapter ».** Briques éprouvées, configuration durcie, deux modules
-Synapse et un widget originaux. Notre code : licence MIT (`LICENSE`).
+**Aucune cryptographie écrite par l'équipe** : Olm/Megolm sont implémentés par Element. **Engagement open source :
+« Étendre et adapter »** — briques éprouvées, configuration durcie, deux modules Synapse et un widget originaux,
+sous licence MIT (`LICENSE`).
 
 ## Installation (une commande)
 
 ```bash
 docker compose up -d
+docker compose cp proxy:/data/caddy/pki/authorities/local/root.crt ./autorite-locale.crt   # une fois :
+certutil -addstore -user Root autorite-locale.crt                                          # faire confiance au HTTPS local
 ```
 
-Puis ouvrir https://chat.localhost. Pour que le navigateur accepte l'autorité de certification interne (une fois) :
-
-```bash
-docker compose cp proxy:/data/caddy/pki/authorities/local/root.crt ./autorite-locale.crt
-certutil -addstore -user Root autorite-locale.crt
-```
-
-(Sous Linux : copier dans `/usr/local/share/ca-certificates/` puis `update-ca-certificates`.) En production, remplacer
-les noms `*.localhost` par les domaines de l'État et changer les secrets de `.env` (modèle : `.env.example`).
-L'horloge du serveur et des téléphones doit être à l'heure : le code TOTP en dépend.
+Puis ouvrir https://chat.localhost (sous Linux : `update-ca-certificates`). En production : domaines de l'État et
+secrets de `.env` changés (modèle `.env.example`). Les horloges doivent être à l'heure (TOTP).
 
 ## Comptes de démonstration (fictifs)
 
-Mot de passe commun : `Demo-Agent-2026!`. Au premier login, chaque agent enregistre une application TOTP.
+Mot de passe commun : `Demo-Agent-2026!` ; chaque agent enregistre une application TOTP à sa première connexion.
 
 | Identifiant | Rôles | Fiche |
 |---|---|---|
@@ -87,34 +74,23 @@ Mot de passe commun : `Demo-Agent-2026!`. Au premier login, chaque agent enregis
 | fatimata.kabore | agent | Chargée de communication · DR du Centre · Ministère de la Santé |
 | visiteur.intrus | aucun → refusé | — |
 
-## Administration (poste serveur)
+## Administration et tests
 
-- Console : http://localhost:8081/admin/administration/console/ (compte `admin.securite`, avec TOTP).
-- `docker compose run --rm admin enroler <id> "<Prénom>" "<Nom>" "<Ministère>" "<Direction>" "<Fonction>" [responsable]`
-- `docker compose run --rm admin revoquer <id>` · `docker compose run --rm admin journal`
-- `sh scripts/sauvegarde.sh` · `sh scripts/sauvegarde.sh restaurer sauvegardes/<date>`
-
-Circuit administratif : un responsable crée un salon `[CONFIDENTIEL] …` ou `[DIFFUSION RESTREINTE] …` ; le circuit
-s'affiche en haut du salon (Element demande d'approuver ses permissions, une fois).
-
-## Tests et preuves
+Console : http://localhost:8081/admin/administration/console/ (poste serveur, compte `admin.securite`). En commande :
+`docker compose run --rm admin enroler <id> "<Prénom>" "<Nom>" "<Ministère>" "<Direction>" "<Fonction>" [responsable]`,
+`… admin revoquer <id>`, `… admin journal` ; sauvegarde : `sh scripts/sauvegarde.sh`.
 
 ```bash
-python -m unittest discover tests      # règles (sans la pile)
-docker compose run --rm tests          # 25 tests sur la pile en marche : intrus, 2FA, chiffrement, révocation…
-sh scripts/verifier.sh contenu "CHAINE-UNIQUE"     # le serveur ne lit rien (base, fichiers, journaux)
-sh scripts/verifier.sh cles "Nom du salon"         # nouvelle clé Megolm après une révocation
+docker compose run --rm tests                   # 25 tests sur la pile : intrus, 2FA, chiffrement, révocation…
+sh scripts/verifier.sh contenu "CHAINE-UNIQUE"  # le serveur ne lit rien (base, fichiers, journaux)
+sh scripts/verifier.sh cles "Nom du salon"      # nouvelle clé Megolm après une révocation
 ```
 
-Détail des vérifications : [`docs/verification.md`](docs/verification.md). Menaces, métadonnées visibles et limites :
-[`docs/note-securite.pdf`](docs/note-securite.pdf).
+Détails : [`docs/verification.md`](docs/verification.md) et [`docs/note-securite.pdf`](docs/note-securite.pdf).
 
 ## Limites connues
 
-- Un appareil connecté **après** l'envoi d'un message ne peut pas le déchiffrer (pas de sauvegarde de clés imposée).
-- Après une révocation, ce qui était déjà déchiffré sur un appareil hors ligne y reste ; une photo de l'écran reste
-  possible (le filigrane identifie la personne, il n'empêche rien).
-- `config/element/index.html` est la page d'Element 1.11.85 complétée de notre feuille de style : à régénérer si
-  l'on change de version d'Element.
-- Le serveur voit des métadonnées : membres des salons, noms des salons, horodatages, tailles. Keycloak tourne en mode
-  développement (base intégrée) et il n'y a qu'un serveur : à industrialiser pour la production.
+- Un appareil connecté **après** un message ne peut pas le lire (pas de sauvegarde de clés imposée). Après une
+  révocation, ce qui était déjà déchiffré hors ligne y reste ; une photo d'écran reste possible (le filigrane identifie).
+- Le serveur voit des métadonnées : membres et noms des salons, horodatages, tailles (détail dans la note de sécurité).
+- Keycloak en mode développement, un seul serveur ; `config/element/index.html` suit Element 1.11.85.
