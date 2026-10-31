@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Circuit administratif</title>
+<link rel="stylesheet" href="design/jetons.css">
 <link rel="stylesheet" href="circuit.css">
 </head>
 <body>
@@ -46,12 +47,15 @@
   </form>
 </details>
 
+<section id="synthese" class="synthese" aria-label="Synthèse" hidden></section>
+
 <main id="liste" aria-live="polite"><p class="vide">Chargement…</p></main>
 
 <footer>Seuls les accusés envoyés par un clic du destinataire sont comptés ; les confirmations de lecture
 automatiques d'Element ne le sont pas. Ces accusés ne constituent pas une signature électronique.</footer>
 
 <script src="vendor/matrix-widget-api-1.10.0.min.js"></script>
+<script src="affichage.js"></script>
 <script src="circuit.js"></script>
 </body>
 </html>

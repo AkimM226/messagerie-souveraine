@@ -1,43 +1,138 @@
-:root { color-scheme: light dark; --fond: #ffffff; --texte: #17191c; --doux: #5c6470; --bord: #d9dde3; --accent: #0b6e4f;
-        --alerte: #a40000; --carte: #f6f7f9; }
-@media (prefers-color-scheme: dark) {
-  :root { --fond: #15191e; --texte: #e8eaed; --doux: #a3aab4; --bord: #343b44; --accent: #3fbf8f; --alerte: #ff7070; --carte: #1d2329; }
-}
+/* Circuit administratif : mise en forme. Toutes les valeurs viennent de design/jetons.css. */
 * { box-sizing: border-box; }
-body { margin: 0; padding: 12px 16px; overflow-x: hidden; background: var(--fond); color: var(--texte); font: 14px/1.45 system-ui, sans-serif; }
-header { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-h1 { font-size: 16px; margin: 0 8px 0 0; }
-h2 { font-size: 15px; margin: 4px 0; }
-h3 { font-size: 13px; margin: 10px 0 4px; }
-.badge { font-size: 12px; padding: 2px 8px; border-radius: 10px; border: 1px solid var(--bord); }
-.badge.ok { color: var(--accent); border-color: var(--accent); }
-.badge.alerte, .niveau-confidentiel { color: var(--alerte); border-color: var(--alerte); font-weight: 600; }
-.niveau-diffusion { color: #b06000; border-color: #b06000; font-weight: 600; }
-.avertissement { border-left: 4px solid var(--alerte); padding: 6px 10px; background: var(--carte); margin: 10px 0; }
-details { margin: 10px 0; border: 1px solid var(--bord); border-radius: 8px; padding: 8px 10px; }
-summary { cursor: pointer; font-weight: 600; }
-form { display: grid; gap: 8px; margin-top: 8px; }
-label { display: grid; gap: 2px; font-size: 13px; color: var(--doux); }
-label.case { display: flex; gap: 6px; align-items: center; }
-.ligne { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-input, select, textarea, button { font: inherit; color: var(--texte); background: var(--fond); border: 1px solid var(--bord);
-  border-radius: 6px; padding: 6px 8px; }
-button { background: var(--accent); color: #fff; border: 0; cursor: pointer; }
-button.secondaire { background: transparent; color: var(--texte); border: 1px solid var(--bord); }
-button:disabled { opacity: .6; cursor: progress; }
-button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.aide, .meta, .vide, .ignore, footer, .statut { color: var(--doux); font-size: 12px; }
-.carte { background: var(--carte); border: 1px solid var(--bord); border-left: 4px solid var(--bord); border-radius: 8px; padding: 10px 12px; margin: 10px 0; }
-.carte.priorite-haute { border-left-color: #b06000; }
-.carte.priorite-urgente { border-left-color: var(--alerte); }
-.entete { display: flex; justify-content: space-between; font-size: 12px; color: var(--doux); }
-.accuse { font-size: 12px; color: var(--accent); margin: 0; }
-.contenu { white-space: pre-wrap; padding: 8px; border-radius: 6px; background-repeat: repeat; }
-.boutons { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
+[hidden] { display: none !important; }   /* sinon les display: grid / flex ci-dessous réafficheraient les blocs masqués */
+body { margin: 0; padding: var(--esp-3) var(--esp-4); overflow-x: hidden; background: var(--fond); color: var(--texte);
+       font: var(--texte-base)/var(--interligne) var(--police); -webkit-font-smoothing: antialiased; }
+button, input, select, textarea { font: inherit; color: var(--texte); }
+
+/* Icône en masque : prend la couleur du texte de l'élément */
+.badge::before, .avertissement::before, .accuse::before, .echeance::before, .suivi > summary::after {
+  content: ""; flex: none; width: 12px; height: 12px; background: currentColor;
+  -webkit-mask: var(--icone) center / contain no-repeat; mask: var(--icone) center / contain no-repeat; }
+
+/* En-tête : titre, niveau de classification, état réel du chiffrement */
+header { display: flex; flex-wrap: wrap; gap: var(--esp-2); align-items: center; padding-bottom: var(--esp-3); border-bottom: 1px solid var(--or); }
+h1 { margin: 0 var(--esp-2) 0 0; font-size: var(--texte-md); font-weight: 600; color: var(--titre); }
+.badge { display: inline-flex; align-items: center; gap: var(--esp-1); padding: 2px var(--esp-2); font-size: var(--texte-xs); font-weight: 500;
+         border: 1px solid var(--bord); border-radius: var(--rayon-pilule); background: var(--surface); color: var(--texte-2); }
+.badge:empty { display: none; }
+.badge.niveau-standard { --icone: var(--icone-bouclier); }
+.badge.niveau-diffusion { --icone: var(--icone-bouclier); color: var(--classif-restreinte); border-color: var(--avertissement); background: var(--classif-restreinte-fond); font-weight: 600; }
+.badge.niveau-confidentiel { --icone: var(--icone-bouclier); color: var(--classif-confidentiel); border-color: var(--classif-confidentiel); background: var(--classif-confidentiel-fond); font-weight: 600; }
+.badge.ok { --icone: var(--icone-cadenas); color: var(--emeraude); border-color: var(--emeraude); background: var(--emeraude-clair); }
+.badge.alerte { --icone: var(--icone-alerte); color: var(--erreur); border-color: var(--erreur); background: var(--erreur-fond); font-weight: 600; }
+
+.avertissement { display: flex; gap: var(--esp-2); align-items: flex-start; margin: var(--esp-3) 0; padding: var(--esp-2) var(--esp-3);
+                 font-size: var(--texte-sm); border-left: 4px solid; border-radius: 0 var(--rayon-md) var(--rayon-md) 0; }
+.avertissement::before { margin-top: 3px; width: 14px; height: 14px; }
+.avertissement.niveau-confidentiel { --icone: var(--icone-bouclier); color: var(--classif-confidentiel); background: var(--classif-confidentiel-fond); }
+.avertissement.niveau-diffusion { --icone: var(--icone-bouclier); color: var(--classif-restreinte); background: var(--classif-restreinte-fond); border-color: var(--avertissement); }
+.avertissement.alerte { --icone: var(--icone-alerte); color: var(--erreur); background: var(--erreur-fond); }
+
+/* Formulaire d'émission (responsables) */
+#emission { margin: var(--esp-3) 0; padding: var(--esp-2) var(--esp-3); background: var(--surface); border: 1px solid var(--bord);
+            border-radius: var(--rayon-md); box-shadow: var(--ombre-1); }
+#emission summary { cursor: pointer; font-size: var(--texte-sm); font-weight: 600; color: var(--titre); }
+form { display: grid; gap: var(--esp-3); margin-top: var(--esp-3); }
+label { display: grid; gap: var(--esp-1); font-size: var(--texte-sm); font-weight: 500; color: var(--texte-2); }
+label.case { display: flex; gap: var(--esp-2); align-items: center; font-weight: 400; color: var(--texte); }
+.ligne { display: grid; grid-template-columns: 1fr 1fr; gap: var(--esp-3); }
+input, select, textarea { min-height: 36px; padding: 6px 10px; background: var(--surface); border: 1px solid var(--bord-fort); border-radius: var(--rayon-sm);
+                          transition: border-color var(--duree) var(--courbe), box-shadow var(--duree) var(--courbe); }
+input[type=checkbox] { min-height: 0; width: 16px; height: 16px; accent-color: var(--emeraude); }
+input:hover, select:hover, textarea:hover { border-color: var(--texte-2); }
+form button[type=submit] { min-height: 40px; padding: 0 var(--esp-4); background: var(--primaire); color: var(--sur-primaire); border: 0;
+                           border-radius: var(--rayon-sm); font-weight: 600; cursor: pointer; transition: opacity var(--duree) var(--courbe); }
+form button[type=submit]:hover { opacity: .92; }
+button:disabled { opacity: .55; cursor: progress; }
+:is(button, input, select, textarea, summary):focus-visible { outline: none; box-shadow: var(--anneau); border-color: var(--emeraude); }
+.aide { margin: 0; font-size: var(--texte-xs); color: var(--texte-2); }
+#statut-envoi, .statut { font-size: var(--texte-xs); color: var(--texte-2); }
+
+/* Synthèse : À traiter, En retard, Terminées */
+.synthese { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--esp-3); margin: var(--esp-4) 0; }
+.tuile { display: flex; flex-direction: column; align-items: center; padding: var(--esp-2) var(--esp-1); background: var(--surface);
+         border: 1px solid var(--bord); border-radius: var(--rayon-md); box-shadow: var(--ombre-1); }
+.tuile strong { font-size: var(--texte-lg); font-weight: 600; line-height: 1; color: var(--titre); }
+.tuile span { margin-top: var(--esp-1); font-size: var(--texte-xs); font-weight: 500; line-height: 1.25; text-align: center; color: var(--texte-2); }
+.tuile.alerte { border-color: var(--erreur); }
+.tuile.alerte strong, .tuile.alerte span { color: var(--erreur); }
+
+/* Carte d'une communication */
+.carte { margin: var(--esp-3) 0; padding: var(--esp-3); background: var(--surface); border: 1px solid var(--bord); border-left: 4px solid var(--bord-fort);
+         border-radius: var(--rayon-md); box-shadow: var(--ombre-1); }
+.carte.priorite-haute { border-left-color: var(--avertissement); }
+.carte.priorite-urgente { border-left-color: var(--erreur); }
+.entete { display: flex; flex-wrap: wrap; gap: 6px; font-size: var(--texte-xs); color: var(--texte-2); }
+.entete .type { font-weight: 500; }
+.entete .priorite::before { content: "•"; margin-right: 6px; color: var(--bord-fort); }
+.priorite-haute .entete .priorite { color: var(--avertissement-texte); font-weight: 500; }
+.priorite-urgente .entete .priorite { color: var(--erreur); font-weight: 600; }
+.echeance { --icone: var(--icone-calendrier); display: inline-flex; align-items: center; gap: var(--esp-1); margin-top: 6px; padding: 1px 6px;
+            font-size: 11px; font-weight: 500; color: var(--texte-2); background: var(--surface); border: 1px solid var(--bord); border-radius: 4px; }
+.echeance.retard { color: var(--erreur); border-color: var(--erreur); background: var(--erreur-fond); }
+h2 { margin: var(--esp-2) 0 var(--esp-1); font-size: var(--texte-md); font-weight: 600; line-height: 1.3; color: var(--titre); }
+.meta { margin: var(--esp-1) 0; font-size: var(--texte-xs); line-height: 1.4; color: var(--texte-2); }
+.meta .service { display: block; }
+.accuse { --icone: var(--icone-coche); display: flex; align-items: center; gap: var(--esp-1); margin: var(--esp-2) 0 0; font-size: var(--texte-xs); font-weight: 500; color: var(--emeraude); }
+.contenu { white-space: pre-wrap; margin: var(--esp-3) 0 0; padding: var(--esp-3); font-size: var(--texte-sm); border-radius: var(--rayon-sm);
+           background-color: var(--surface-2); border: 1px solid var(--bord); background-repeat: repeat; }
+
+/* Réponse de l'agent : étapes Reçu → Pris connaissance → En cours → Exécuté */
+.reponse, .suivi { margin-top: var(--esp-4); padding-top: var(--esp-3); border-top: 1px solid var(--bord); }
+.ligne-reponse { display: flex; justify-content: space-between; align-items: baseline; gap: var(--esp-2); }
+.titre-reponse { font-size: var(--texte-sm); font-weight: 600; color: var(--titre); }
+.etat-actuel { font-size: var(--texte-xs); color: var(--texte-2); text-align: right; }
+.retard { color: var(--erreur); }
+.etapes { position: relative; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: var(--esp-3) 0 var(--esp-2); padding: 0; list-style: none; }
+.etapes::before { content: ""; position: absolute; top: 15px; left: 12.5%; right: 12.5%; height: 2px; background: var(--bord); }
+.etape { width: 100%; min-height: 52px; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: var(--esp-1) 2px;
+         background: none; border: 0; border-radius: var(--rayon-sm); cursor: pointer; }
+.pastille { position: relative; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--surface);
+            border: 2px solid var(--bord-fort); transition: border-color var(--duree) var(--courbe), background-color var(--duree) var(--courbe); }
+.pastille::after { content: ""; width: 8px; height: 8px; border-radius: 50%; transition: background-color var(--duree) var(--courbe); }
+.etape:hover .pastille { border-color: var(--emeraude); }
+.etape:hover .pastille::after { background: var(--emeraude); }
+.etape.faite .pastille { background: var(--emeraude); border-color: var(--emeraude); }
+.etape.faite .pastille::after { background: var(--surface); }
+.etape[aria-current] .pastille { box-shadow: 0 0 0 3px var(--emeraude-clair); }
+.libelle { font-size: 11px; font-weight: 500; line-height: 1.2; text-align: center; color: var(--texte-2); }
+.etape.faite .libelle { color: var(--texte); }
+.etape[aria-current] .libelle { color: var(--emeraude); font-weight: 600; }
+.lien-clarification { display: block; margin: 0 0 var(--esp-2); padding: var(--esp-1) 0; background: none; border: 0; font-size: var(--texte-sm);
+                      font-weight: 500; color: var(--avertissement-texte); text-align: left; cursor: pointer; }
+.lien-clarification:hover { text-decoration: underline; }
 .commentaire { width: 100%; }
-table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
-th, td { text-align: left; padding: 4px 6px; border-bottom: 1px solid var(--bord); vertical-align: top; overflow-wrap: anywhere; }
-tr.etat-pris_connaissance td:nth-child(2), tr.etat-en_cours td:nth-child(2), tr.etat-execute td:nth-child(2) { color: var(--accent); }
-tr.etat-clarification td:nth-child(2) { color: #b06000; }
-footer { margin-top: 16px; }
+.statut { display: block; margin-top: 6px; }
+
+/* Suivi des destinataires (émetteur et responsables) */
+.suivi > summary { display: flex; justify-content: space-between; align-items: center; gap: var(--esp-2); min-height: 32px; list-style: none;
+                   cursor: pointer; border-radius: var(--rayon-sm); }
+.suivi > summary::-webkit-details-marker { display: none; }
+.suivi > summary::after { --icone: var(--icone-chevron); width: 16px; height: 16px; background: var(--texte-2); transition: transform var(--duree) var(--courbe); }
+.suivi[open] > summary::after { transform: rotate(180deg); }
+.titre-suivi { font-size: var(--texte-sm); font-weight: 600; color: var(--titre); }
+.suivi[open] .titre-suivi { color: var(--emeraude); }
+.avatars { display: flex; margin-left: auto; }
+.avatar { position: relative; display: grid; place-items: center; width: 22px; height: 22px; margin-left: -6px; border-radius: 50%;
+          font-size: 10px; font-weight: 600; color: var(--texte-2); background: var(--surface); border: 1px solid var(--bord-fort); }
+.avatar:first-child { margin-left: 0; }
+.avatar::after { content: ""; position: absolute; right: -2px; bottom: -2px; width: 8px; height: 8px; border-radius: 50%;
+                 border: 1.5px solid var(--surface); background: var(--surface); box-shadow: inset 0 0 0 1px var(--bord-fort); }
+.avatar.etat-recu::after { background: var(--texte-2); box-shadow: none; }
+.avatar:is(.etat-pris_connaissance, .etat-en_cours, .etat-execute)::after { background: var(--emeraude); box-shadow: none; }
+.avatar.etat-clarification::after { background: var(--avertissement); box-shadow: none; }
+.avatar.plus::after { display: none; }
+table { width: 100%; margin-top: var(--esp-3); border-collapse: collapse; font-size: var(--texte-xs); table-layout: fixed; }
+th, td { padding: 6px var(--esp-1); text-align: left; vertical-align: top; border-bottom: 1px solid var(--bord); overflow-wrap: anywhere; }
+th { font-weight: 600; color: var(--texte-2); overflow-wrap: normal; }
+th:last-child { width: 35%; }
+.nom { font-weight: 500; color: var(--texte); }
+.etat-ligne { font-size: 11px; color: var(--texte-2); }
+tr:is(.etat-pris_connaissance, .etat-en_cours, .etat-execute) .etat-ligne { color: var(--emeraude); }
+tr.etat-clarification .etat-ligne { color: var(--avertissement-texte); }
+
+.vide, .ignore { padding: var(--esp-4); font-size: var(--texte-sm); color: var(--texte-2); text-align: center; background: var(--surface);
+                 border: 1px dashed var(--bord-fort); border-radius: var(--rayon-md); }
+footer { margin-top: var(--esp-6); padding-bottom: var(--esp-4); font-size: var(--texte-xs); line-height: 1.45; color: var(--texte-2); }
 @media (max-width: 480px) { .ligne { grid-template-columns: 1fr; } }
