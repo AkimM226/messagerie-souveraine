@@ -47,6 +47,20 @@
 .mx_SSOButton.mx_SSOButton_primary:focus-visible { outline: none; box-shadow: var(--anneau); }
 .mx_SSOButton.mx_SSOButton_primary img { display: none; }
 
+/* Écrans de sécurité d'Element (vérifier cet appareil, configurer le chiffrement) : Element leur donne une
+   largeur fixe de 600 px et leur propre fond ; on les fait tenir dans la carte. */
+.mx_AuthPage_modalContent:has(.mx_CompleteSecurityBody) { max-width: 600px; padding: 0 !important; }
+.mx_CompleteSecurityBody { width: 100% !important; max-width: 100%; padding: 40px !important;
+  background: none !important; border-radius: 0; color: var(--texte); }
+.mx_CompleteSecurity_header { gap: var(--esp-2); margin: 0 0 var(--esp-4);
+  font-size: 22px; line-height: 1.3; font-weight: 600; color: var(--titre); }
+/* Bouton de fermeture : dans la ligne du titre (Element le pose en absolu, par-dessus le titre). */
+.mx_CompleteSecurityBody .mx_CompleteSecurity_skip { position: relative; right: auto; flex: none; margin-left: auto; }
+.mx_CompleteSecurity_actionRow { flex-wrap: wrap; gap: var(--esp-3); }
+.mx_CompleteSecurity_actionRow .mx_AccessibleButton { margin-inline-start: 0 !important; }
+.mx_CompleteSecurityBody .mx_AccessibleButton_kind_primary { color: var(--sur-primaire); background-color: var(--primaire); border-radius: 8px; }
+.mx_CompleteSecurityBody .mx_AccessibleButton_kind_primary:hover { background-color: var(--navy-2); }
+
 /* ---------- Accueil (notre page, config/element/accueil.html) : composition complète ---------- */
 .mx_AuthPage:has(.souverain) { display: block !important; }
 .mx_AuthPage:has(.souverain)::before, .mx_AuthPage:has(.souverain)::after, .mx_AuthPage:has(.souverain) .mx_AuthFooter,
@@ -126,6 +140,7 @@
   .mx_AuthPage_modal { grid-column: 1; grid-row: 2; align-items: flex-start; padding: var(--esp-5) var(--esp-4); }
   .mx_AuthFooter { grid-column: 1; grid-row: 3; }
   .mx_AuthPage_modalContent { padding: 28px 22px !important; }
+  .mx_CompleteSecurityBody { padding: 28px 22px !important; }
 
   .souverain { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
   .souverain-identite { padding: var(--esp-6) var(--esp-5) 28px; }
