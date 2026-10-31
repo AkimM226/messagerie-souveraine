@@ -5,9 +5,37 @@
 	local_certs
 }
 
+# Design system servi par le proxy lui-même, et page d'indisponibilité quand le service derrière ne répond pas :
+# fonctionne même si Synapse, Keycloak ou Element est arrêté.
+(souverain) {
+	# Fichiers sans empreinte dans leur nom : le navigateur revérifie (réponse « inchangé » si rien n'a bougé).
+	header /_souverain/* Cache-Control "no-cache"
+	handle_path /_souverain/* {
+		root * /srv/design
+		file_server
+	}
+	handle_errors {
+		@indisponible expression `{err.status_code} in [502, 503, 504]`
+		handle @indisponible {
+			root * /srv/design
+			rewrite * /indisponible.html
+			file_server
+		}
+	}
+}
+
 # chat2 : second accès au même client, pour faire tourner deux agents côte à côte (démo, tests).
 chat.localhost, chat2.localhost {
 	encode zstd gzip
+	import souverain
+	header /souverain/* {
+		defer
+		Cache-Control "no-cache"
+	}
+	header /accueil.html {
+		defer
+		Cache-Control "no-cache"
+	}
 	reverse_proxy element:80
 }
 
@@ -16,12 +44,14 @@ matrix.localhost {
 	encode zstd gzip
 	# L'API d'administration n'est jamais exposée : seul l'outil interne y accède.
 	respond /_synapse/admin/* 403
+	import souverain
 	reverse_proxy synapse:8008
 }
 
 # Circuit administratif : page statique affichée dans Element, et seulement dans Element.
 circuit.localhost {
 	encode zstd gzip
+	header Cache-Control "no-cache"
 	# Design system partagé (jetons, police Inter hébergée ici même).
 	handle_path /design/* {
 		root * /srv/design
@@ -40,5 +70,6 @@ auth.localhost {
 	# Console d'administration jamais exposée : accessible seulement sur le poste serveur (localhost:8081).
 	respond /admin* 403
 	respond /realms/master* 403
+	import souverain
 	reverse_proxy keycloak:8080
 }

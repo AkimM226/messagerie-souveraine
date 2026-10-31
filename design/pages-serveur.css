@@ -1,0 +1,36 @@
+/* Pages servies par le serveur (erreurs de connexion Synapse, indisponibilité) : même composition que l'accueil.
+   Chargée après design/jetons.css. */
+:root { color-scheme: light; }
+*, *::before, *::after { box-sizing: border-box; }
+html, body { height: auto; min-height: 100%; }
+body.souverain-page { display: grid; grid-template-columns: minmax(0, 55fr) minmax(0, 45fr); max-width: none; min-height: 100vh; margin: 0;
+  font: var(--texte-base)/var(--interligne) var(--police); color: var(--texte); background: var(--fond); -webkit-font-smoothing: antialiased; }
+.souverain-page::before { content: "Conçue pour l'administration publique du Burkina Faso"; display: flex; align-items: flex-end;
+  padding: var(--esp-8) 64px; font-size: var(--texte-sm); color: #9fb0c4;
+  background: url("/_souverain/visuel-reseau.svg") right -170px center / 620px no-repeat,
+              radial-gradient(120% 90% at 85% 15%, var(--navy-2) 0%, var(--navy) 55%); }
+.souverain-page .mx_Header { position: absolute; top: 48px; left: 64px; margin: 0; padding: 0 0 0 16px; border: 0; border-left: 4px solid var(--or);
+  font-size: 17px; line-height: 22px; text-align: left; color: #ffffff; }
+.souverain-page .souverain-zone { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: var(--esp-8) var(--esp-4); }
+.souverain-page .souverain-carte { width: 100%; max-width: 440px; padding: 40px; background: var(--surface); border: 1px solid var(--bord);
+  border-radius: var(--rayon-lg); box-shadow: var(--ombre-2); }
+.souverain-page p, .souverain-page h1 { overflow-wrap: anywhere; }
+.souverain-page h1 { margin: var(--esp-4) 0 var(--esp-3); font-size: 24px; line-height: 1.25; font-weight: 600; color: var(--titre); }
+.souverain-page p { margin: var(--esp-3) 0 0; font-size: 15px; color: var(--texte-2); }
+.souverain-page .souverain-etat { display: inline-flex; align-items: center; gap: 6px; margin: 0; padding: var(--esp-1) 10px; font-size: var(--texte-xs);
+  font-weight: 600; border-radius: var(--rayon-pilule); color: var(--erreur); background: var(--erreur-fond); }
+.souverain-page .souverain-etat::before { content: ""; width: 14px; height: 14px; background: currentColor;
+  -webkit-mask: var(--icone-alerte) center / contain no-repeat; mask: var(--icone-alerte) center / contain no-repeat; }
+.souverain-page .souverain-code { margin-top: var(--esp-5); padding-top: var(--esp-4); border-top: 1px solid var(--bord); font-size: var(--texte-xs); }
+.souverain-page .souverain-bouton { display: flex; align-items: center; justify-content: center; min-height: 48px; margin-top: var(--esp-6);
+  font-weight: 600; color: var(--sur-primaire); text-decoration: none; background: var(--primaire); border-radius: 8px; }
+.souverain-page .souverain-bouton:hover { background: var(--navy-2); }
+.souverain-page .souverain-bouton:focus-visible { outline: none; box-shadow: var(--anneau); }
+.souverain-page .souverain-pied { margin-top: var(--esp-6); font-size: var(--texte-xs); color: var(--texte-2); }
+@media (max-width: 900px) {
+  body.souverain-page { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 1fr; }
+  .souverain-page::before { content: ""; min-height: 64px; padding: 0; background-size: 320px, auto; background-position: right -120px center, 0 0; }
+  .souverain-page .mx_Header { top: 21px; left: 20px; font-size: 15px; }
+  .souverain-page .souverain-zone { justify-content: flex-start; padding: var(--esp-5) var(--esp-4); }
+  .souverain-page .souverain-carte { padding: 28px 22px; }
+}

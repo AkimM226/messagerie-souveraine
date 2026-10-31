@@ -1,4 +1,6 @@
 /* Page de connexion (Keycloak, PatternFly 5) aux couleurs du design system. Valeurs : design/jetons.css. */
+:root { color-scheme: light; }
+:root.pf-v5-theme-dark { color-scheme: dark; }
 :root {
   --pf-v5-global--FontFamily--text: var(--police);
   --pf-v5-global--FontFamily--heading: var(--police);
@@ -8,8 +10,17 @@
   --pf-v5-global--danger-color--100: var(--erreur);
 }
 body#keycloak-bg { background: var(--fond); color: var(--texte); font-family: var(--police); -webkit-font-smoothing: antialiased; }
-.pf-v5-c-login { min-height: 100vh; display: grid; place-items: center; padding: var(--esp-8) var(--esp-4); background: var(--fond); }
-.pf-v5-c-login__container { display: block; width: 100%; max-width: 420px; padding: 0; }
+/* Composition en deux parties, comme l'accueil de la messagerie : identité à gauche, connexion à droite. */
+.pf-v5-c-login { min-height: 100vh; display: grid; grid-template-columns: 55fr 45fr; align-items: stretch; padding: 0; background: var(--fond); }
+.pf-v5-c-login::before {
+  content: "Conçue pour l'administration publique du Burkina Faso"; display: flex; align-items: flex-end; align-self: stretch; padding: var(--esp-8) 64px;
+  font-size: var(--texte-sm); color: #9fb0c4;
+  background: url("../design/visuel-reseau.svg") right -170px center / 620px no-repeat,
+              radial-gradient(120% 90% at 85% 15%, var(--navy-2) 0%, var(--navy) 55%); }
+body#keycloak-bg::before { content: "Messagerie souveraine"; position: absolute; top: 48px; left: 64px; padding-left: 16px; font-size: 17px;
+  font-weight: 600; color: #ffffff; border-left: 4px solid var(--or); line-height: 22px; }
+.pf-v5-c-login__container { display: block; align-self: center; justify-self: center; width: 100%; max-width: 420px; padding: var(--esp-8) var(--esp-4); }
+.pf-v5-c-login__header { display: none; }   /* l'identité est dans le panneau de gauche */
 
 /* Identité : nom du produit, mention institutionnelle, filet doré */
 .pf-v5-c-login__header { padding: 0 0 var(--esp-6); text-align: center; }
@@ -66,3 +77,13 @@ body#keycloak-bg { background: var(--fond); color: var(--texte); font-family: va
 /* Mention de bas de page */
 .pf-v5-c-login__container::after { content: "Accès réservé aux agents enrôlés · Chiffrement de bout en bout"; display: block;
   margin-top: var(--esp-5); text-align: center; font-size: var(--texte-xs); color: var(--texte-2); }
+
+/* Mobile et tablette : la connexion d'abord, l'identité en bandeau compact */
+@media (max-width: 900px) {
+  .pf-v5-c-login { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+  .pf-v5-c-login::before { content: ""; min-height: 64px; padding: 0; background-size: 320px, auto; background-position: right -120px center, 0 0; }
+  body#keycloak-bg::before { top: 21px; left: 20px; font-size: 15px; }
+  .pf-v5-c-login__container { align-self: start; padding: var(--esp-5) var(--esp-4); }
+  .pf-v5-c-login__main { padding: 28px 22px; }
+}
+body#keycloak-bg { position: relative; overflow-x: hidden; }   /* l'infobulle cachée de Keycloak ne doit pas élargir la page */

@@ -7,13 +7,11 @@
     },
     "brand": "Messagerie souveraine",
     "branding": {
-        "auth_footer_links": [],
-        "welcome_background_url": "https://circuit.localhost/design/element-fond.svg",
-        "auth_header_logo_url": "https://circuit.localhost/design/element-logo.svg"
+        "auth_footer_links": []
     },
     "disable_custom_urls": true,
     "disable_guests": true,
-    "disable_login_language_selector": false,
+    "disable_login_language_selector": true,
     "disable_3pid_login": true,
     "default_country_code": "BF",
     "show_labs_settings": false,

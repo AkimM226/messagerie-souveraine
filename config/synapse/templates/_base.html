@@ -8,15 +8,20 @@
     <style type="text/css">
       {%- include 'style.css' without context %}
     </style>
+    {# Design system, servi par le proxy (/_souverain/) : aucune ressource externe. #}
+    <link rel="stylesheet" href="/_souverain/jetons.css">
+    <link rel="stylesheet" href="/_souverain/pages-serveur.css">
     {% block header %}{%  endblock %}
 </head>
-<body>
+<body class="souverain-page">
 <header class="mx_Header">
     {# Aucune image chargée depuis un site externe (matrix.org, element.io) : la page reste souveraine. #}
-    <strong>Messagerie souveraine de l'administration</strong>
+    <strong>Messagerie souveraine</strong>
 </header>
 
+<main class="souverain-zone"><div class="souverain-carte">
 {% block body %}{% endblock %}
+</div></main>
 
 </body>
 </html>

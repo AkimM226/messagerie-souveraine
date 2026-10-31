@@ -27,6 +27,10 @@ services:
     volumes:
       - ./config/element/config.json:/app/config.json:ro
       - ./config/element/accueil.html:/app/accueil.html:ro
+      # Habillage des pages d'authentification : index.html d'origine + une feuille de style (présentation seulement).
+      - ./config/element/index.html:/app/index.html:ro
+      - ./config/element/element.css:/app/souverain/element.css:ro
+      - ./design:/app/souverain/design:ro
     restart: unless-stopped
 
   # Serveur Matrix : ne stocke que des messages et fichiers déjà chiffrés.

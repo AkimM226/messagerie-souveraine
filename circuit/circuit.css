@@ -1,5 +1,7 @@
 /* Circuit administratif : mise en forme. Toutes les valeurs viennent de design/jetons.css. */
 * { box-sizing: border-box; }
+:root { color-scheme: light; }
+:root[data-theme="dark"] { color-scheme: dark; }
 [hidden] { display: none !important; }   /* sinon les display: grid / flex ci-dessous réafficheraient les blocs masqués */
 body { margin: 0; padding: var(--esp-3) var(--esp-4); overflow-x: hidden; background: var(--fond); color: var(--texte);
        font: var(--texte-base)/var(--interligne) var(--police); -webkit-font-smoothing: antialiased; }

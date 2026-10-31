@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 620" fill="none">
+  <!-- Visuel décoratif : institutions reliées par des liaisons protégées (couleurs de design/jetons.css). -->
+  <defs>
+    <radialGradient id="halo-vert"><stop offset="0" stop-color="#2fd4a0" stop-opacity=".9"/><stop offset="1" stop-color="#168568" stop-opacity="0"/></radialGradient>
+    <radialGradient id="halo-or"><stop offset="0" stop-color="#e7c27a" stop-opacity=".9"/><stop offset="1" stop-color="#c49a45" stop-opacity="0"/></radialGradient>
+  </defs>
+  <g stroke="#ffffff" stroke-opacity=".10">
+    <circle cx="330" cy="310" r="120"/><circle cx="330" cy="310" r="190"/><circle cx="330" cy="310" r="260" stroke-dasharray="2 8"/>
+  </g>
+  <g stroke="#ffffff" stroke-opacity=".18">
+    <path d="M330 310 L190 170 M330 310 L470 150 M330 310 L520 330 M330 310 L430 480 M330 310 L200 450 M330 310 L120 300"/>
+    <path d="M190 170 L470 150 M470 150 L520 330 M520 330 L430 480 M430 480 L200 450 M200 450 L120 300 M120 300 L190 170" stroke-opacity=".08"/>
+  </g>
+  <g fill="#ffffff" fill-opacity=".85">
+    <circle cx="190" cy="170" r="3"/><circle cx="470" cy="150" r="3"/><circle cx="520" cy="330" r="3"/>
+    <circle cx="430" cy="480" r="3"/><circle cx="200" cy="450" r="3"/><circle cx="120" cy="300" r="3"/>
+  </g>
+  <circle cx="330" cy="310" r="34" fill="url(#halo-vert)" opacity=".55"/>
+  <circle cx="330" cy="310" r="6" fill="#2fd4a0"/>
+  <circle cx="470" cy="150" r="16" fill="url(#halo-or)" opacity=".6"/>
+  <circle cx="200" cy="450" r="14" fill="url(#halo-vert)" opacity=".5"/>
+</svg>

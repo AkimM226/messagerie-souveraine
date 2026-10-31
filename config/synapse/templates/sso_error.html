@@ -1,0 +1,27 @@
+{% extends "_base.html" %}
+{# Traduction en français de la page d'erreur de connexion de Synapse (même logique, mêmes variables). #}
+{% block title %}{% if error == "unauthorised" %}Accès refusé{% else %}Connexion impossible{% endif %} — Messagerie souveraine{% endblock %}
+
+{% block body %}
+{% if error == "unauthorised" %}
+    <p class="souverain-etat">Accès refusé</p>
+    <h1>Votre compte n'est pas autorisé à utiliser la messagerie</h1>
+    <p>Seuls les agents enrôlés peuvent se connecter. Si vous devriez y avoir accès, contactez l'administrateur
+       de la messagerie de votre service.</p>
+{% else %}
+    <p class="souverain-etat">Connexion impossible</p>
+    <h1>La connexion n'a pas abouti</h1>
+    <p><strong id="errormsg">{{ error_description }}</strong></p>
+    <p>Recommencez la connexion depuis la messagerie. Si le problème persiste, contactez l'administrateur de la messagerie.</p>
+    <p class="souverain-code">Code d'erreur : {{ error }}</p>
+    <script type="text/javascript">
+        // Comme la page d'origine : affiche la description d'erreur transmise dans l'adresse, s'il y en a une.
+        let recherche = window.location.search || window.location.hash.replace("#", "?");
+        let description = new URLSearchParams(recherche).get("error_description");
+        if (description) {
+            document.getElementById("errormsg").innerText = description;
+        }
+    </script>
+{% endif %}
+<a class="souverain-bouton" href="https://chat.localhost/">Retour à la messagerie</a>
+{% endblock %}

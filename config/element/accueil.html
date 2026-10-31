@@ -1,24 +1,38 @@
-<!-- Page d'accueil d'Element (avant connexion). Couleurs reprises de design/jetons.css : ce fragment est inséré
-     dans Element, on n'y charge pas les jetons pour ne pas modifier tout son document. -->
-<style>
-  /* Boîte d'Element (blanc translucide sur le fond navy) rendue opaque, sur cette seule page : contraste AA.
-     Element pose ce fond en style en ligne, d'où le !important. */
-  .mx_AuthPage_modalContent:has(.souverain) { background-color: #ffffff !important; }
-  .souverain { display: flex; flex-direction: column; align-items: center; padding: 32px 28px; text-align: center; color: #172536;
-               font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-  .souverain h1 { margin: 0; font-size: 22px; font-weight: 600; color: #142b45; }
-  .souverain .filet { width: 56px; height: 2px; margin: 16px auto; background: #c49a45; border-radius: 2px; }
-  .souverain p { max-width: 380px; margin: 0; font-size: 14px; line-height: 1.5; }
-  .souverain .connexion { display: inline-block; margin-top: 24px; padding: 11px 32px; border-radius: 6px; background: #142b45; color: #ffffff;
-                          font-weight: 600; text-decoration: none; transition: background-color 160ms; }
-  .souverain .connexion:hover { background: #284761; }
-  .souverain .connexion:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(22, 133, 104, .30); }
-  .souverain .mention { margin-top: 20px; font-size: 12px; color: #64748b; }
-</style>
+<!-- Page d'accueil d'Element (avant connexion), mise en forme par souverain/element.css.
+     Le bouton ouvre l'écran #/start_sso d'Element : son propre mécanisme de connexion (SSO vers Keycloak,
+     retour, jetons et session gérés par Element et Synapse). Aucun formulaire ici. -->
 <div class="souverain">
-  <h1>Espace des agents publics</h1>
-  <div class="filet"></div>
-  <p>Messagerie instantanée chiffrée de bout en bout, hébergée par l'État et réservée aux agents enrôlés.</p>
-  <a class="connexion" href="#/login">Se connecter</a>
-  <p class="mention">Identifiant d'agent, mot de passe et code de votre application d'authentification.</p>
+  <section class="souverain-identite" aria-label="Présentation de la messagerie">
+    <img class="souverain-visuel" src="souverain/design/visuel-reseau.svg" alt="">
+    <p class="souverain-marque">Messagerie souveraine</p>
+    <div class="souverain-message">
+      <p class="souverain-surtitre">Infrastructure numérique de l'État</p>
+      <h1>La communication administrative entre dans une nouvelle ère.</h1>
+      <p class="souverain-texte">Une messagerie professionnelle conçue pour protéger les échanges, renforcer la collaboration et accompagner la souveraineté numérique de l'administration publique.</p>
+      <ul class="souverain-garanties">
+        <li class="souverain-garantie-chiffrement">Chiffrement de bout en bout</li>
+        <li class="souverain-garantie-etat">Hébergée par l'État</li>
+        <li class="souverain-garantie-agents">Agents enrôlés uniquement</li>
+      </ul>
+    </div>
+    <p class="souverain-signature">Conçue pour l'administration publique du Burkina Faso</p>
+  </section>
+
+  <section class="souverain-connexion" aria-label="Connexion">
+    <div class="souverain-carte">
+      <p class="souverain-pastille">Authentification sécurisée</p>
+      <h2>Bienvenue sur votre espace professionnel</h2>
+      <p class="souverain-sous-titre">Connectez-vous avec votre identité d'agent de l'État pour accéder à vos communications professionnelles.</p>
+      <a class="souverain-bouton" href="#/start_sso">
+        <span class="souverain-libelle">Se connecter avec mon compte agent</span>
+        <span class="souverain-attente">Redirection vers le fournisseur d'identité…</span>
+      </a>
+      <p class="souverain-note">Accès réservé aux agents préalablement enrôlés.</p>
+      <ol class="souverain-etapes">
+        <li>Identifiant et mot de passe d'agent</li>
+        <li>Code à 6 chiffres de votre application d'authentification</li>
+      </ol>
+    </div>
+    <p class="souverain-pied">Messagerie souveraine de l'administration — Burkina Faso</p>
+  </section>
 </div>

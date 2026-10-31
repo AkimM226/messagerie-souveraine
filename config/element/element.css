@@ -1,0 +1,139 @@
+/* Habillage des pages d'authentification d'Element : accueil, connexion, session expirée.
+   Couche de présentation uniquement : boutons, liens, redirections et sessions restent ceux d'Element.
+   Valeurs : design/jetons.css (chargé juste avant). Element pose certains fonds en style en ligne :
+   les quelques !important ci-dessous servent uniquement à les remplacer. */
+
+/* ---------- Toutes les pages d'authentification : identité à gauche, contenu à droite ---------- */
+/* Element n'emploie pas border-box : on l'applique à nos éléments et à la boîte que l'on habille. */
+.souverain, .souverain *, .souverain *::before, .souverain *::after, .mx_AuthPage_modalContent, .mx_AuthFooter { box-sizing: border-box; }
+.mx_AuthPage {
+  display: grid !important; grid-template-columns: 55fr 45fr; grid-template-rows: 1fr auto; min-height: 100vh;
+  background: var(--fond) !important; font-family: var(--police); color: var(--texte);
+}
+.mx_AuthPage::before {   /* panneau d'identité (décor) des pages où Element affiche son propre contenu */
+  content: "Conçue pour l'administration publique du Burkina Faso";
+  grid-column: 1; grid-row: 1 / span 2; display: flex; align-items: flex-end; padding: var(--esp-8) 64px;
+  font-size: var(--texte-sm); color: #9fb0c4;
+  background: url("design/visuel-reseau.svg") right -170px center / 620px no-repeat,
+              radial-gradient(120% 90% at 85% 15%, var(--navy-2) 0%, var(--navy) 55%);
+}
+.mx_AuthPage { position: relative; }
+.mx_AuthPage::after { content: "Messagerie souveraine"; position: absolute; top: 48px; left: 64px; padding-left: 16px; font-size: 17px;
+  font-weight: 600; line-height: 22px; color: #ffffff; border-left: 4px solid var(--or); }
+.mx_AuthPage_modal { grid-column: 2; grid-row: 1; display: flex; align-items: center; justify-content: center;
+  width: auto !important; margin: 0 !important; padding: var(--esp-8) var(--esp-8) var(--esp-4); box-shadow: none !important; }
+.mx_AuthPage_modalBlur { display: none; }
+.mx_AuthPage_modalContent { display: block !important; width: 100%; max-width: 420px; padding: 40px !important;
+  background: var(--surface) !important; border: 1px solid var(--bord); border-radius: var(--rayon-lg); box-shadow: var(--ombre-2);
+  animation: souverain-apparition .5s var(--courbe) both; }
+.mx_AuthFooter { grid-column: 2; grid-row: 2; width: auto !important; box-sizing: border-box; padding: 0 var(--esp-4) var(--esp-5);
+  text-align: center; font-size: 0; background: none !important; }
+.mx_AuthFooter::before { content: "Messagerie souveraine de l'administration — Burkina Faso"; font-size: var(--texte-xs); color: var(--texte-2); }
+.mx_AuthFooter a { display: none; }
+
+/* Page de connexion d'Element (après une déconnexion) : le serveur est déjà configuré (config.json),
+   rien à choisir ; on ne montre ni son adresse technique ni l'en-tête par défaut. */
+.mx_AuthHeader, .mx_ServerPicker { display: none !important; }
+.mx_AuthBody { width: auto !important; padding: 0 !important; background: none !important; border: 0 !important; min-height: 0 !important; }
+.mx_AuthBody h1 { margin: var(--esp-5) 0 var(--esp-2); font-size: 26px; font-weight: 600; line-height: 1.25; color: var(--titre); }
+.mx_AuthBody::before { content: "Authentification sécurisée"; display: inline-flex; padding: var(--esp-1) 10px var(--esp-1) 28px; font-size: var(--texte-xs);
+  font-weight: 600; color: var(--emeraude); border-radius: var(--rayon-pilule);
+  background: var(--emeraude-clair) no-repeat 10px center / 14px; background-image: var(--icone-bouclier-coche); }
+.mx_SSOButtons { margin-top: var(--esp-6); }
+.mx_SSOButton.mx_SSOButton_primary { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 52px; padding: 12px 20px;
+  font-size: 15px; font-weight: 600; color: var(--sur-primaire); background: var(--primaire); border: 0; border-radius: 8px;
+  transition: background-color var(--duree) var(--courbe), box-shadow var(--duree) var(--courbe); }
+.mx_SSOButton.mx_SSOButton_primary:hover { background: var(--navy-2); box-shadow: var(--ombre-2); }
+.mx_SSOButton.mx_SSOButton_primary:focus-visible { outline: none; box-shadow: var(--anneau); }
+.mx_SSOButton.mx_SSOButton_primary img { display: none; }
+
+/* ---------- Accueil (notre page, config/element/accueil.html) : composition complète ---------- */
+.mx_AuthPage:has(.souverain) { display: block !important; }
+.mx_AuthPage:has(.souverain)::before, .mx_AuthPage:has(.souverain)::after, .mx_AuthPage:has(.souverain) .mx_AuthFooter,
+.mx_AuthPage:has(.souverain) .mx_LanguageDropdown { display: none !important; }
+.mx_AuthPage:has(.souverain) .mx_AuthPage_modal { display: block; padding: 0; }
+.mx_AuthPage:has(.souverain) .mx_AuthPage_modalContent { max-width: none; min-height: 100vh; padding: 0 !important; border: 0; border-radius: 0;
+  background: none !important; box-shadow: none; animation: none; }
+.mx_AuthPage:has(.souverain) :is(.mx_Welcome, .mx_WelcomePage, .mx_WelcomePage_body) { width: 100%; max-width: none; min-height: 100vh; margin: 0; padding: 0; }
+
+.souverain { display: grid; grid-template-columns: 55fr 45fr; min-height: 100vh; text-align: left; font-family: var(--police); }
+.souverain p, .souverain h1, .souverain h2, .souverain ul, .souverain ol { margin: 0; }
+
+.souverain-identite { position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between;
+  padding: 48px 64px; color: #ffffff; background: radial-gradient(120% 90% at 85% 15%, var(--navy-2) 0%, var(--navy) 55%); }
+.souverain-visuel { position: absolute; right: -170px; top: 50%; width: 620px; height: 620px; transform: translateY(-50%); pointer-events: none; }
+.souverain-marque { position: relative; display: flex; align-items: center; gap: var(--esp-3); font-size: 17px; font-weight: 600; }
+.souverain-marque::before { content: ""; width: 4px; height: 22px; border-radius: 2px; background: var(--or); }
+.souverain-message { position: relative; max-width: 540px; }
+.souverain-surtitre { margin-bottom: var(--esp-5) !important; font-size: var(--texte-xs); font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--or); }
+.souverain-message h1 { font-size: 44px; line-height: 1.12; font-weight: 600; letter-spacing: -.02em; color: #ffffff; }
+.souverain-texte { max-width: 500px; margin-top: var(--esp-6) !important; font-size: 17px; line-height: 1.6; color: #c9d4e2; }
+.souverain-garanties { display: flex; flex-wrap: wrap; gap: 10px 22px; margin-top: 36px !important; padding: 0; list-style: none; font-size: var(--texte-sm); color: #c9d4e2; }
+.souverain-garanties li { display: flex; align-items: center; gap: var(--esp-2); }
+.souverain-garanties li::before { content: ""; width: 16px; height: 16px; background: #5fcfa8;
+  -webkit-mask: var(--icone) center / contain no-repeat; mask: var(--icone) center / contain no-repeat; }
+.souverain-garantie-chiffrement { --icone: var(--icone-cadenas); }
+.souverain-garantie-etat { --icone: var(--icone-serveur); }
+.souverain-garantie-agents { --icone: var(--icone-agent); }
+.souverain-signature { position: relative; display: flex; align-items: center; gap: var(--esp-3); font-size: var(--texte-sm); color: #9fb0c4; }
+.souverain-signature::before { content: ""; width: 24px; height: 1px; background: var(--or); }
+
+.souverain-connexion { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 48px var(--esp-8) var(--esp-6); background: var(--fond); }
+.souverain-carte { width: 100%; max-width: 420px; margin: auto 0; padding: 40px; background: var(--surface); border: 1px solid var(--bord);
+  border-radius: var(--rayon-lg); box-shadow: var(--ombre-2); animation: souverain-apparition .5s var(--courbe) both; }
+.souverain-pastille { display: inline-flex; align-items: center; gap: 6px; padding: var(--esp-1) 10px; font-size: var(--texte-xs); font-weight: 600;
+  color: var(--emeraude); background: var(--emeraude-clair); border-radius: var(--rayon-pilule); }
+.souverain-pastille::before, .souverain-note::before, .souverain-bouton::before { content: ""; flex: none; background: currentColor;
+  -webkit-mask: var(--icone) center / contain no-repeat; mask: var(--icone) center / contain no-repeat; }
+.souverain-pastille::before { --icone: var(--icone-bouclier-coche); width: 14px; height: 14px; }
+.souverain-carte h2 { margin-top: var(--esp-5) !important; font-size: 26px; line-height: 1.25; font-weight: 600; letter-spacing: -.01em; color: var(--titre); }
+.souverain-sous-titre { margin-top: var(--esp-3) !important; font-size: 15px; line-height: 1.55; color: var(--texte-2); }
+.souverain-bouton { position: relative; display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; margin-top: var(--esp-8);
+  padding: 12px 20px; font-size: 15px; font-weight: 600; line-height: 1.3; text-align: center; color: var(--sur-primaire) !important;
+  text-decoration: none !important; background: var(--primaire); border-radius: 8px; box-shadow: var(--ombre-1);
+  transition: background-color var(--duree) var(--courbe), box-shadow var(--duree) var(--courbe); }
+.souverain-bouton::before { --icone: var(--icone-badge); width: 18px; height: 18px; }
+.souverain-bouton:hover { background: var(--navy-2); box-shadow: var(--ombre-2); }
+.souverain-bouton:focus-visible { outline: none; box-shadow: var(--anneau); }
+/* Après un clic, le navigateur part vers Keycloak : on l'indique sans déplacer la mise en page. */
+.souverain-attente { display: none; }
+.souverain-bouton:is(:active, :focus:not(:focus-visible)) .souverain-libelle { display: none; }
+.souverain-bouton:is(:active, :focus:not(:focus-visible)) .souverain-attente { display: inline; }
+.souverain-bouton:is(:active, :focus:not(:focus-visible))::before { --icone: none; width: 16px; height: 16px; background: none; -webkit-mask: none; mask: none;
+  border: 2px solid rgba(255, 255, 255, .35); border-top-color: #ffffff; border-radius: 50%; animation: souverain-rotation .8s linear infinite; }
+.souverain-note { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: var(--esp-4) !important; font-size: var(--texte-sm); color: var(--texte-2); }
+.souverain-note::before { --icone: var(--icone-cadenas); width: 14px; height: 14px; }
+.souverain-etapes { display: grid; gap: 10px; margin-top: 28px !important; padding: var(--esp-5) 0 0; border-top: 1px solid var(--bord);
+  list-style: none; counter-reset: etape; font-size: var(--texte-sm); color: var(--texte-2); }
+.souverain-etapes li { display: flex; align-items: baseline; gap: 10px; counter-increment: etape; }
+.souverain-etapes li::before { content: counter(etape); flex: none; display: inline-grid; place-items: center; width: 20px; height: 20px; font-size: 11px;
+  font-weight: 600; color: var(--titre); background: var(--fond); border: 1px solid var(--bord); border-radius: 50%; }
+.souverain-pied { margin-top: var(--esp-6) !important; font-size: var(--texte-xs); color: var(--texte-2); text-align: center; }
+
+@keyframes souverain-apparition { from { opacity: 0; transform: translateY(8px); } }
+@keyframes souverain-rotation { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .mx_AuthPage_modalContent, .souverain-carte { animation: none; }
+  .souverain-bouton::before { animation-duration: 2s !important; }
+}
+
+/* ---------- Mobile et tablette : la connexion d'abord, l'identité en signature compacte ---------- */
+@media (max-width: 900px) {
+  .mx_AuthPage { grid-template-columns: 1fr; grid-template-rows: auto 1fr auto; }
+  .mx_AuthPage::before { grid-row: 1; grid-column: 1; content: ""; min-height: 64px; padding: 0;
+    background-size: 320px, auto; background-position: right -120px center, 0 0; }
+  .mx_AuthPage::after { top: 21px; left: 20px; font-size: 15px; }
+  .mx_AuthPage_modal { grid-column: 1; grid-row: 2; align-items: flex-start; padding: var(--esp-5) var(--esp-4); }
+  .mx_AuthFooter { grid-column: 1; grid-row: 3; }
+  .mx_AuthPage_modalContent { padding: 28px 22px !important; }
+
+  .souverain { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+  .souverain-identite { padding: var(--esp-6) var(--esp-5) 28px; }
+  .souverain-visuel { width: 360px; height: 360px; right: -140px; top: 0; transform: none; opacity: .55; }
+  .souverain-message { margin-top: 18px; }
+  .souverain-message h1 { font-size: var(--texte-xl); }
+  .souverain-texte, .souverain-garanties, .souverain-signature, .souverain-surtitre { display: none !important; }
+  .souverain-connexion { justify-content: flex-start; padding: 0 var(--esp-4) var(--esp-5); }
+  .souverain-carte { margin: -12px 0 0; padding: 28px 22px; }
+  .souverain-carte h2 { font-size: 22px; }
+}
