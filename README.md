@@ -23,6 +23,8 @@ l'infrastructure de l'État, sans aucun service tiers. Projet du sprint pré-hac
 - **Annuaire institutionnel** alimenté par les administrateurs : chaque agent apparaît sous la forme
   « Prénom Nom · fonction · direction · ministère », recherchable dans Element ; un agent ne peut pas changer son nom.
 - **Journal administratif** (enrôlements, révocations, connexions ; aucun contenu), **sauvegarde et restauration**.
+- **Identité visuelle institutionnelle** : un design system unique (`design/jetons.css` : navy, émeraude, or, police Inter
+  hébergée localement) appliqué au thème d'Element, à la page de connexion (thème Keycloak `souverain`) et au circuit.
 
 ## Architecture
 
@@ -47,6 +49,7 @@ Caddy (point d'entrée, autorité de certification interne)
 | PostgreSQL 16 | Base de données | PostgreSQL License |
 | Caddy 2.8.4 | Proxy inverse, HTTPS | Apache-2.0 |
 | matrix-widget-api 1.10.0 | Dialogue widget ↔ Element (fichier dans `circuit/vendor/`) | Apache-2.0 |
+| Inter 4 (fontsource 5.1.0) | Police de l'interface (fichiers dans `design/polices/`) | OFL-1.1 |
 
 **Chiffrement** : Matrix Olm (double ratchet entre appareils) et Megolm (groupes), implémentés par Element ;
 le widget du circuit ne fait aucune cryptographie, Element chiffre ce qu'il envoie. **Aucune cryptographie écrite par l'équipe.**

@@ -41,6 +41,8 @@ dans le navigateur : « You are not allowed to log in here ».
 
 Les agents doivent être connectés au salon **avant** l'envoi de l'instruction (chiffrement de bout en bout).
 Si le circuit reste sur « Chargement… », recharger la page (F5) : anomalie intermittente d'Element 1.11.85 au démarrage.
+Dans la vue « Maximiser » d'Element, l'état peut indiquer un échec alors que l'envoi a réussi (Element répond deux fois) :
+la carte de la communication fait foi.
 Seuls les clics des destinataires comptent comme accusés, pas les confirmations de lecture automatiques d'Element.
 
 ## 5. Classification et rôles
