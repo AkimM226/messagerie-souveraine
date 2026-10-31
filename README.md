@@ -113,5 +113,9 @@ Détail des vérifications : [`docs/verification.md`](docs/verification.md). Men
 - Un appareil connecté **après** l'envoi d'un message ne peut pas le déchiffrer (pas de sauvegarde de clés imposée).
 - Après une révocation, ce qui était déjà déchiffré sur un appareil hors ligne y reste ; une photo de l'écran reste
   possible (le filigrane identifie la personne, il n'empêche rien).
+- Après une déconnexion d'Element, la session Keycloak reste ouverte (24 h) : sur un poste partagé, la connexion
+  suivante ne redemande ni mot de passe ni code. À régler côté Keycloak avant un usage réel.
+- `config/element/index.html` est la page d'Element 1.11.85 complétée de notre feuille de style : à régénérer si
+  l'on change de version d'Element.
 - Le serveur voit des métadonnées : membres des salons, noms des salons, horodatages, tailles. Keycloak tourne en mode
   développement (base intégrée) et il n'y a qu'un serveur : à industrialiser pour la production.

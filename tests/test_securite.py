@@ -204,7 +204,7 @@ class TestIntrus(unittest.TestCase):
         jeton, secret, page = connexion(identifiant)
         self.assertIsNotNone(secret, "le 2FA a bien été exigé")
         self.assertIsNone(jeton, "un compte sans rôle agent ne doit pas entrer")
-        self.assertIn("Authentication failed", page, "c'est la messagerie (Synapse) qui refuse, après Keycloak")
+        self.assertIn("Accès refusé", page, "c'est la messagerie (Synapse) qui refuse, après Keycloak")
 
     def test_mauvais_code_2fa_refuse(self):
         kc = Keycloak()

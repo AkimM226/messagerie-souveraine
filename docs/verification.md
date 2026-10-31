@@ -30,7 +30,7 @@ l'agent révoqué n'a jamais reçue. Test automatique : `test_revocation_depuis_
 `docker compose run --rm tests test_securite.TestIntrus` : inscription refusée, connexion par mot de passe Matrix
 impossible, API et consoles d'administration non exposées (403), faux jeton refusé, compte existant dans Keycloak mais
 non enrôlé (sans rôle `agent`) refusé par la messagerie, mauvais code TOTP refusé. Avec le compte `visiteur.intrus`
-dans le navigateur : « You are not allowed to log in here ».
+dans le navigateur : page « Accès refusé — Votre compte n'est pas autorisé à utiliser la messagerie ».
 
 ## 4. Innovation : circuit administratif
 
