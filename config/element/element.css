@@ -126,6 +126,19 @@
 
 @keyframes souverain-apparition { from { opacity: 0; transform: translateY(8px); } }
 @keyframes souverain-rotation { to { transform: rotate(360deg); } }
+/* ---------- Application : barre des espaces, sur fond navy (« sidebar-color » du thème Souverain) ---------- */
+/* Element y garde les couleurs de texte du thème clair, foncées : on les éclaircit dans cette barre seulement.
+   body[style*=...] : Element ne pose ces variables sur <body> que lorsque le thème Souverain est actif. */
+body[style*="--sidebar-color"] .mx_SpacePanel {
+  color: var(--sur-primaire);                              /* nom de l'agent, « Tous les salons », « Créer un espace » */
+  --timeline-text-color: var(--sur-primaire);              /* icônes « + » et menus */
+  --secondary-content: #c3d0de;                            /* « Fils de discussion », « Paramètres » */
+  --quaternary-content: rgba(255, 255, 255, .12);          /* fond au survol */
+  --roomlist-highlights-color: rgba(255, 255, 255, .14);   /* espace sélectionné */
+  --cpd-color-gray-400: rgba(255, 255, 255, .18);          /* filet sous le nom de l'agent */
+}
+body[style*="--sidebar-color"] .mx_SpacePanel .mx_SpaceButton_toggleCollapse { background-color: #c3d0de; }
+
 @media (prefers-reduced-motion: reduce) {
   .mx_AuthPage_modalContent, .souverain-carte { animation: none; }
   .souverain-bouton::before { animation-duration: 2s !important; }
