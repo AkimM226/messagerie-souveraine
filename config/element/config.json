@@ -6,7 +6,11 @@
         }
     },
     "brand": "Messagerie souveraine",
-    "branding": { "auth_footer_links": [] },
+    "branding": {
+        "auth_footer_links": [],
+        "welcome_background_url": "https://circuit.localhost/design/element-fond.svg",
+        "auth_header_logo_url": "https://circuit.localhost/design/element-logo.svg"
+    },
     "disable_custom_urls": true,
     "disable_guests": true,
     "disable_login_language_selector": false,
@@ -17,8 +21,13 @@
     "integrations_rest_url": "",
     "integrations_widgets_urls": [],
     "bug_report_endpoint_url": null,
-    "jitsi": { "preferred_domain": "" },
-    "element_call": { "url": "", "use_exclusively": false },
+    "jitsi": {
+        "preferred_domain": ""
+    },
+    "element_call": {
+        "url": "",
+        "use_exclusively": false
+    },
     "map_style_url": "",
     "setting_defaults": {
         "language": "fr",
@@ -29,7 +38,52 @@
         "UIFeature.feedback": false,
         "UIFeature.voip": false,
         "UIFeature.widgets": true,
-        "UIFeature.urlPreviews": false
+        "UIFeature.urlPreviews": false,
+        "custom_themes": [
+            {
+                "name": "Souverain",
+                "is_dark": false,
+                "colors": {
+                    "accent-color": "#168568",
+                    "primary-color": "#142B45",
+                    "warning-color": "#C03935",
+                    "sidebar-color": "#142B45",
+                    "roomlist-background-color": "#F4F6F8",
+                    "roomlist-text-color": "#172536",
+                    "roomlist-text-secondary-color": "#64748B",
+                    "roomlist-highlights-color": "#E8F5F0",
+                    "roomlist-separator-color": "#E2E8F0",
+                    "timeline-background-color": "#FFFFFF",
+                    "timeline-text-color": "#172536",
+                    "timeline-text-secondary-color": "#64748B",
+                    "timeline-highlights-color": "#F8FAFC",
+                    "reaction-row-button-selected-bg-color": "#E8F5F0",
+                    "username-colors": [
+                        "#142B45",
+                        "#168568",
+                        "#284761",
+                        "#8A5A12",
+                        "#8B1E2D",
+                        "#2F6F8F",
+                        "#5B4B8A",
+                        "#3E6B3A"
+                    ],
+                    "avatar-background-colors": [
+                        "#142B45",
+                        "#168568",
+                        "#284761"
+                    ]
+                }
+            }
+        ]
     },
-    "room_directory": { "servers": ["matrix.localhost"] }
+    "room_directory": {
+        "servers": [
+            "matrix.localhost"
+        ]
+    },
+    "default_theme": "custom-Souverain",
+    "embedded_pages": {
+        "welcome_url": "accueil.html"
+    }
 }

@@ -12,6 +12,7 @@ services:
     volumes:
       - ./config/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
       - ./circuit:/srv/circuit:ro
+      - ./design:/srv/design:ro
       - caddy-data:/data
     networks:
       default:
@@ -25,6 +26,7 @@ services:
     image: vectorim/element-web:v1.11.85
     volumes:
       - ./config/element/config.json:/app/config.json:ro
+      - ./config/element/accueil.html:/app/accueil.html:ro
     restart: unless-stopped
 
   # Serveur Matrix : ne stocke que des messages et fichiers déjà chiffrés.
@@ -76,6 +78,10 @@ services:
       - "127.0.0.1:8081:8080"   # console d'administration : poste serveur uniquement
     volumes:
       - ./config/keycloak/realm-administration.json:/opt/keycloak/data/import/realm-administration.json:ro
+      # Thème de connexion : hérite du thème officiel, n'en change que l'apparence (jetons du design system).
+      - ./config/keycloak/theme/theme.properties:/opt/keycloak/themes/souverain/login/theme.properties:ro
+      - ./config/keycloak/theme/connexion.css:/opt/keycloak/themes/souverain/login/resources/css/connexion.css:ro
+      - ./design:/opt/keycloak/themes/souverain/login/resources/design:ro
       - keycloak-data:/opt/keycloak/data
     restart: unless-stopped
 

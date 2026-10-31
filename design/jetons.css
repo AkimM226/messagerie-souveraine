@@ -1,0 +1,90 @@
+/* Design system de la messagerie souveraine : la seule source des couleurs, de la typographie,
+   des espacements, des rayons, des ombres et des durées. Partagé par le circuit administratif et la page
+   de connexion (Keycloak) ; le thème d'Element reprend les mêmes valeurs dans config/element/config.json. */
+
+@font-face { font-family: "Inter"; font-style: normal; font-weight: 400; font-display: swap; src: url("polices/inter-400.woff2") format("woff2"); }
+@font-face { font-family: "Inter"; font-style: normal; font-weight: 500; font-display: swap; src: url("polices/inter-500.woff2") format("woff2"); }
+@font-face { font-family: "Inter"; font-style: normal; font-weight: 600; font-display: swap; src: url("polices/inter-600.woff2") format("woff2"); }
+@font-face { font-family: "Inter"; font-style: normal; font-weight: 700; font-display: swap; src: url("polices/inter-700.woff2") format("woff2"); }
+
+:root {
+  color-scheme: light;
+
+  /* Identité */
+  --navy: #142b45;              /* primaire : en-têtes, actions principales */
+  --navy-2: #284761;            /* secondaire */
+  --emeraude: #168568;          /* accentuation, succès, chiffrement actif */
+  --emeraude-clair: #e8f5f0;
+  --or: #c49a45;                /* filets et détails uniquement (contraste insuffisant pour du texte) */
+
+  /* Rôles (ce que les composants emploient) */
+  --primaire: var(--navy);      /* fond des actions principales */
+  --sur-primaire: #ffffff;      /* texte posé sur --primaire */
+  --titre: var(--navy);
+
+  /* Surfaces et texte */
+  --fond: #f4f6f8;
+  --surface: #ffffff;
+  --surface-2: #f8fafc;
+  --texte: #172536;
+  --texte-2: #64748b;           /* à employer sur --surface (contraste AA) */
+  --bord: #e2e8f0;
+  --bord-fort: #cbd5e1;
+
+  /* États */
+  --succes: #168568;
+  --avertissement: #b7791f;     /* bordures, icônes */
+  --avertissement-texte: #8a5a12;
+  --avertissement-fond: #fdf6e9;
+  --erreur: #c03935;
+  --erreur-fond: #fdeeee;
+
+  /* Classification */
+  --classif-standard: var(--texte-2);
+  --classif-restreinte: var(--avertissement-texte);
+  --classif-restreinte-fond: var(--avertissement-fond);
+  --classif-confidentiel: #8b1e2d;
+  --classif-confidentiel-fond: #fbeef0;
+
+  /* Typographie */
+  --police: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --texte-xs: 12px;  --texte-sm: 13px;  --texte-base: 14px;  --texte-md: 16px;  --texte-lg: 20px;  --texte-xl: 28px;
+  --interligne: 1.5;
+
+  /* Espacements, rayons, ombres, profondeur */
+  --esp-1: 4px;  --esp-2: 8px;  --esp-3: 12px;  --esp-4: 16px;  --esp-5: 20px;  --esp-6: 24px;  --esp-8: 32px;
+  --rayon-sm: 6px;  --rayon-md: 10px;  --rayon-lg: 14px;  --rayon-pilule: 999px;
+  --ombre-1: 0 1px 2px rgba(20, 43, 69, .06);
+  --ombre-2: 0 4px 16px rgba(20, 43, 69, .08);
+  --anneau: 0 0 0 3px rgba(22, 133, 104, .30);
+
+  /* Icônes (traits style Lucide), utilisées en masque : elles prennent la couleur du texte */
+  --icone-bouclier: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/%3E%3C/svg%3E");
+  --icone-cadenas: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='11' width='18' height='11' rx='2'/%3E%3Cpath d='M7 11V7a5 5 0 0 1 10 0v4'/%3E%3C/svg%3E");
+  --icone-coche: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");
+  --icone-calendrier: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2'/%3E%3Cpath d='M16 2v4M8 2v4M3 10h18'/%3E%3C/svg%3E");
+  --icone-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  --icone-alerte: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z'/%3E%3Cpath d='M12 9v4M12 17h.01'/%3E%3C/svg%3E");
+
+  /* Mouvement */
+  --duree: 160ms;
+  --courbe: cubic-bezier(.2, .8, .2, 1);
+}
+
+/* Thème sombre : demandé explicitement par la page (widget : thème transmis par Element ;
+   page de connexion : classe posée par Keycloak), pour suivre l'application et non le seul système. */
+:root[data-theme="dark"], :root.pf-v5-theme-dark {
+    color-scheme: dark;
+    --primaire: #3a6a95;  --sur-primaire: #ffffff;  --titre: #e6edf5;
+    --emeraude: #3dbb92;  --emeraude-clair: #13382f;  --or: #d9b46a;
+    --fond: #0e1a28;  --surface: #16263a;  --surface-2: #1b2d44;
+    --texte: #e6edf5;  --texte-2: #9fb0c4;  --bord: #2a3b52;  --bord-fort: #3a4e68;
+    --succes: #3dbb92;  --avertissement: #e0a84b;  --avertissement-texte: #f0c27a;  --avertissement-fond: #33281a;
+    --erreur: #f07b76;  --erreur-fond: #3a1f22;
+    --classif-confidentiel: #f39aa6;  --classif-confidentiel-fond: #3a1c24;
+    --ombre-1: 0 1px 2px rgba(0, 0, 0, .3);  --ombre-2: 0 4px 16px rgba(0, 0, 0, .35);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --duree: 0ms; }
+}

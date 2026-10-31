@@ -22,6 +22,11 @@ matrix.localhost {
 # Circuit administratif : page statique affichée dans Element, et seulement dans Element.
 circuit.localhost {
 	encode zstd gzip
+	# Design system partagé (jetons, police Inter hébergée ici même).
+	handle_path /design/* {
+		root * /srv/design
+		file_server
+	}
 	root * /srv/circuit
 	file_server
 	header {

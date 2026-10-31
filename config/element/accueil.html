@@ -1,0 +1,24 @@
+<!-- Page d'accueil d'Element (avant connexion). Couleurs reprises de design/jetons.css : ce fragment est inséré
+     dans Element, on n'y charge pas les jetons pour ne pas modifier tout son document. -->
+<style>
+  /* Boîte d'Element (blanc translucide sur le fond navy) rendue opaque, sur cette seule page : contraste AA.
+     Element pose ce fond en style en ligne, d'où le !important. */
+  .mx_AuthPage_modalContent:has(.souverain) { background-color: #ffffff !important; }
+  .souverain { display: flex; flex-direction: column; align-items: center; padding: 32px 28px; text-align: center; color: #172536;
+               font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .souverain h1 { margin: 0; font-size: 22px; font-weight: 600; color: #142b45; }
+  .souverain .filet { width: 56px; height: 2px; margin: 16px auto; background: #c49a45; border-radius: 2px; }
+  .souverain p { max-width: 380px; margin: 0; font-size: 14px; line-height: 1.5; }
+  .souverain .connexion { display: inline-block; margin-top: 24px; padding: 11px 32px; border-radius: 6px; background: #142b45; color: #ffffff;
+                          font-weight: 600; text-decoration: none; transition: background-color 160ms; }
+  .souverain .connexion:hover { background: #284761; }
+  .souverain .connexion:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(22, 133, 104, .30); }
+  .souverain .mention { margin-top: 20px; font-size: 12px; color: #64748b; }
+</style>
+<div class="souverain">
+  <h1>Espace des agents publics</h1>
+  <div class="filet"></div>
+  <p>Messagerie instantanée chiffrée de bout en bout, hébergée par l'État et réservée aux agents enrôlés.</p>
+  <a class="connexion" href="#/login">Se connecter</a>
+  <p class="mention">Identifiant d'agent, mot de passe et code de votre application d'authentification.</p>
+</div>

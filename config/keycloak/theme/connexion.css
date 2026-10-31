@@ -1,0 +1,68 @@
+/* Page de connexion (Keycloak, PatternFly 5) aux couleurs du design system. Valeurs : design/jetons.css. */
+:root {
+  --pf-v5-global--FontFamily--text: var(--police);
+  --pf-v5-global--FontFamily--heading: var(--police);
+  --pf-v5-global--primary-color--100: var(--primaire);
+  --pf-v5-global--link--Color: var(--emeraude);
+  --pf-v5-global--link--Color--hover: var(--emeraude);
+  --pf-v5-global--danger-color--100: var(--erreur);
+}
+body#keycloak-bg { background: var(--fond); color: var(--texte); font-family: var(--police); -webkit-font-smoothing: antialiased; }
+.pf-v5-c-login { min-height: 100vh; display: grid; place-items: center; padding: var(--esp-8) var(--esp-4); background: var(--fond); }
+.pf-v5-c-login__container { display: block; width: 100%; max-width: 420px; padding: 0; }
+
+/* Identité : nom du produit, mention institutionnelle, filet doré */
+.pf-v5-c-login__header { padding: 0 0 var(--esp-6); text-align: center; }
+/* Le thème officiel impose la couleur de l'en-tête (!important) par cette variable : on la redéfinit ici. */
+#kc-header-wrapper { --pf-v5-global--Color--light-100: var(--texte-2); }
+#kc-header-wrapper { display: block; line-height: var(--interligne); font-size: var(--texte-sm); font-weight: 500; letter-spacing: 0; color: var(--texte-2); text-transform: none; }
+#kc-header-wrapper::before { content: "Messagerie souveraine"; display: block; margin-bottom: var(--esp-1); line-height: 1.25; font-size: var(--texte-xl); font-weight: 600; color: var(--titre); }
+#kc-header-wrapper::after { content: ""; display: block; width: 56px; height: 2px; margin: var(--esp-4) auto 0; background: var(--or); border-radius: 2px; }
+
+/* Carte */
+.pf-v5-c-login__main { margin: 0; padding: var(--esp-6); background: var(--surface); border: 1px solid var(--bord); border-radius: var(--rayon-lg); box-shadow: var(--ombre-2); }
+.pf-v5-c-login__main-header { padding: 0 0 var(--esp-4); }
+#kc-page-title { font-size: var(--texte-lg); font-weight: 600; color: var(--titre); }
+.pf-v5-c-login__main-body { padding: 0; }
+.pf-v5-c-login__main-footer { position: relative; padding: var(--esp-4) 0 0; }
+.pf-v5-c-login__main-footer::before { content: ""; position: absolute; left: 12px; top: calc(var(--esp-4) + 14px); width: 14px; height: 14px;
+  background: var(--texte-2); -webkit-mask: var(--icone-bouclier) center / contain no-repeat; mask: var(--icone-bouclier) center / contain no-repeat; }
+.pf-v5-c-login__main-footer::after {
+  content: "Second facteur obligatoire : code à 6 chiffres de votre application d'authentification.";
+  display: block; padding: var(--esp-3) var(--esp-3) var(--esp-3) 36px; font-size: var(--texte-xs); color: var(--texte-2);
+  background: var(--surface-2); border: 1px solid var(--bord); border-radius: var(--rayon-md); }
+
+/* Champs */
+.pf-v5-c-form__label-text { font-size: var(--texte-sm); font-weight: 600; color: var(--texte); }
+/* Cadre simple à la place des filets PatternFly (pseudo-éléments) */
+.pf-v5-c-form-control::before, .pf-v5-c-form-control::after, .pf-v5-c-input-group .pf-v5-c-button.pf-m-control::after { border: 0; }
+.pf-v5-c-form-control { background: var(--surface); border: 1px solid var(--bord-fort); border-radius: var(--rayon-sm);
+  transition: border-color var(--duree) var(--courbe), box-shadow var(--duree) var(--courbe); }
+.pf-v5-c-form-control:hover { border-color: var(--texte-2); }
+.pf-v5-c-form-control:focus-within { border-color: var(--emeraude); box-shadow: var(--anneau); }
+.pf-v5-c-form-control.pf-m-error, .pf-v5-c-form-control:has(input[aria-invalid="true"]) { border-color: var(--erreur); }
+.pf-v5-c-form-control.pf-m-error .pf-v5-c-form-control__icon { color: var(--erreur); }
+.pf-v5-c-form-control > input { min-height: 42px; font-size: var(--texte-base); color: var(--texte); background: transparent; }
+.pf-v5-c-form-control > input:focus { outline: none; }   /* le focus est montré par l'anneau du cadre (:focus-within) */
+.pf-v5-c-input-group .pf-v5-c-form-control { border-radius: var(--rayon-sm) 0 0 var(--rayon-sm); }
+.pf-v5-c-input-group .pf-v5-c-button.pf-m-control { color: var(--texte-2); background: var(--surface); border: 1px solid var(--bord-fort);
+  border-left: 0; border-radius: 0 var(--rayon-sm) var(--rayon-sm) 0; }
+#otp { font-size: var(--texte-lg); letter-spacing: .3em; text-align: center; }
+
+/* Boutons */
+.pf-v5-c-button.pf-m-primary {
+  --pf-v5-c-button--m-primary--BackgroundColor: var(--primaire);
+  --pf-v5-c-button--m-primary--hover--BackgroundColor: var(--navy-2);
+  --pf-v5-c-button--m-primary--focus--BackgroundColor: var(--navy-2);
+  --pf-v5-c-button--m-primary--Color: var(--sur-primaire);
+  min-height: 44px; font-weight: 600; border-radius: var(--rayon-sm); }
+.pf-v5-c-button:focus-visible { box-shadow: var(--anneau); outline: none; }
+
+/* Messages d'erreur et d'information */
+.pf-v5-c-alert { border-radius: var(--rayon-md); font-size: var(--texte-sm); }
+.pf-v5-c-alert.pf-m-danger, .pf-v5-c-alert.pf-m-error { --pf-v5-c-alert--BorderTopColor: var(--erreur); background: var(--erreur-fond); }
+.kc-feedback-text, .pf-v5-c-helper-text__item.pf-m-error { color: var(--erreur); }
+
+/* Mention de bas de page */
+.pf-v5-c-login__container::after { content: "Accès réservé aux agents enrôlés · Chiffrement de bout en bout"; display: block;
+  margin-top: var(--esp-5); text-align: center; font-size: var(--texte-xs); color: var(--texte-2); }

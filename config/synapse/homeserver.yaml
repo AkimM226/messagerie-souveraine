@@ -104,7 +104,7 @@ modules:
   - module: classification.Classification
     config:
       intervalle: 30                       # vérification toutes les 30 s
-      circuit: "https://circuit.localhost/?user=$matrix_user_id"   # widget ajouté aux salons classifiés
+      circuit: "https://circuit.localhost/?user=$matrix_user_id&theme=$org.matrix.msc2873.client_theme"   # widget ajouté aux salons classifiés
       niveaux:                             # préfixe du nom du salon -> durée de vie des messages (secondes)
         "[CONFIDENTIEL]": 300              # 5 min pour la démonstration (24 h conseillé en production)
         "[DIFFUSION RESTREINTE]": 604800   # 7 jours

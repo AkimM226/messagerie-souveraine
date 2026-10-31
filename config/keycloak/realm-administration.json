@@ -1,6 +1,6 @@
 {
   "realm": "administration",
-  "displayName": "Administration publique — Messagerie souveraine",
+  "displayName": "Administration publique — infrastructure de l'État",
   "enabled": true,
   "sslRequired": "external",
   "registrationAllowed": false,
@@ -12,6 +12,8 @@
   "internationalizationEnabled": true,
   "supportedLocales": ["fr"],
   "defaultLocale": "fr",
+  "loginTheme": "souverain",
+  "localizationTexts": { "fr": { "loginAccountTitle": "Connexion agent", "usernameOrEmail": "Identifiant" } },
   "otpPolicyType": "totp",
   "otpPolicyAlgorithm": "HmacSHA1",
   "otpPolicyDigits": 6,
