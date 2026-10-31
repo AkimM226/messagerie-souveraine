@@ -9,7 +9,7 @@ l'infrastructure de l'État, sans aucun service tiers. Projet du sprint pré-hac
   et refuse tout message envoyé en clair dans un salon chiffré.
 - **Enrôlement contrôlé** : pas d'inscription libre ; seuls les agents créés par un administrateur dans Keycloak,
   avec le rôle `agent`, entrent. **Second facteur TOTP obligatoire** à chaque connexion (aucune session réutilisée, même sur un poste
-  partagé), blocage après 5 échecs.
+  partagé ; se déconnecter d'Element ferme aussi la session Keycloak), blocage après 5 échecs.
 - **Rôles vérifiés par le serveur** : `agent`, `responsable` (seul habilité à créer un salon classifié), `admin-securite`
   (enrôle, révoque, consulte le journal dans la console Keycloak du domaine).
 - **Révocation centralisée** : désactiver un agent dans la console (ou en une commande) coupe toutes ses sessions sur
@@ -101,7 +101,7 @@ s'affiche en haut du salon (Element demande d'approuver ses permissions, une foi
 
 ```bash
 python -m unittest discover tests      # règles (sans la pile)
-docker compose run --rm tests          # 24 tests sur la pile en marche : intrus, 2FA, chiffrement, révocation…
+docker compose run --rm tests          # 25 tests sur la pile en marche : intrus, 2FA, chiffrement, révocation…
 sh scripts/verifier.sh contenu "CHAINE-UNIQUE"     # le serveur ne lit rien (base, fichiers, journaux)
 sh scripts/verifier.sh cles "Nom du salon"         # nouvelle clé Megolm après une révocation
 ```

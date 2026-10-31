@@ -43,6 +43,9 @@ body#keycloak-bg::before { content: "Messagerie souveraine"; position: absolute;
   display: block; padding: var(--esp-3) var(--esp-3) var(--esp-3) 36px; font-size: var(--texte-xs); color: var(--texte-2);
   background: var(--surface-2); border: 1px solid var(--bord); border-radius: var(--rayon-md); }
 
+/* Page de confirmation de la déconnexion : la note sur le second facteur n'y a pas de sens. */
+.pf-v5-c-login__main:has(input[name="confirmLogout"]) .pf-v5-c-login__main-footer { display: none; }
+
 /* Champs */
 .pf-v5-c-form__label-text { font-size: var(--texte-sm); font-weight: 600; color: var(--texte); }
 /* Cadre simple à la place des filets PatternFly (pseudo-éléments) */

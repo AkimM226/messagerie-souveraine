@@ -226,6 +226,27 @@ class TestIntrus(unittest.TestCase):
         self.assertNotIn("loginToken=", url + page, "aucune connexion sans mot de passe ni code")
         self.assertIn("username", Formulaire(page).champs)
 
+    def test_agent_suivant_sur_un_poste_partage(self):
+        # Se déconnecter d'Element ferme aussi la session Keycloak : l'agent suivant peut se connecter.
+        kc = Keycloak()
+        (precedent, precedent_id), (suivant, suivant_id), (autre, autre_id) = [kc.creer_agent(roles=["agent"]) for _ in range(3)]
+        for agent_id in (precedent_id, suivant_id, autre_id):
+            self.addCleanup(kc.supprimer, agent_id)
+        nav = Navigateur()
+        self.assertEqual(api("POST", "/logout", connexion(precedent, navigateur=nav)[0], {})[0], 200)
+        # Element ouvre ensuite logout_redirect_url (config.json) : Keycloak demande de confirmer la déconnexion.
+        sortie = json.loads(nav.ouvrir("https://chat.localhost/config.json")[2])["logout_redirect_url"]
+        _, url, page = nav.ouvrir(sortie)
+        formulaire = Formulaire(page)
+        _, url, _ = nav.ouvrir(urllib.parse.urljoin(url, formulaire.action), formulaire.champs)
+        self.assertEqual(url, "https://chat.localhost/", "retour à la messagerie")
+        self.assertIsNotNone(connexion(suivant, navigateur=nav)[0], "l'agent suivant se connecte")
+        # Sans déconnexion, l'agent d'après est refusé, sans que le nom du précédent lui soit montré.
+        jeton, _, page = connexion(autre, navigateur=nav)
+        self.assertIsNone(jeton)
+        self.assertIn("Une autre session est encore ouverte", page)
+        self.assertNotIn(suivant, page)
+
 
 @unittest.skipUnless(CONTEXTE_TLS, "à lancer avec : docker compose run --rm tests")
 class TestAgents(unittest.TestCase):

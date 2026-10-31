@@ -13,7 +13,8 @@
   "supportedLocales": ["fr"],
   "defaultLocale": "fr",
   "loginTheme": "souverain",
-  "localizationTexts": { "fr": { "loginAccountTitle": "Connexion agent", "usernameOrEmail": "Identifiant" } },
+  "localizationTexts": { "fr": { "loginAccountTitle": "Connexion agent", "usernameOrEmail": "Identifiant",
+    "differentUserAuthenticated": "Une autre session est encore ouverte dans ce navigateur. Fermez toutes ses fenêtres, puis reconnectez-vous." } },
   "otpPolicyType": "totp",
   "otpPolicyAlgorithm": "HmacSHA1",
   "otpPolicyDigits": 6,
@@ -95,7 +96,7 @@
       "webOrigins": ["https://matrix.localhost"],
       "attributes": {
         "pkce.code.challenge.method": "S256",
-        "post.logout.redirect.uris": "+"
+        "post.logout.redirect.uris": "https://chat.localhost/*##https://chat2.localhost/*"
       },
       "protocolMappers": [
         {
