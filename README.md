@@ -8,7 +8,8 @@ l'infrastructure de l'État, sans aucun service tiers. Projet du sprint pré-hac
 - **Messages, groupes et fichiers chiffrés de bout en bout** (Matrix Olm/Megolm) : le serveur ne stocke que du chiffré
   et refuse tout message envoyé en clair dans un salon chiffré.
 - **Enrôlement contrôlé** : pas d'inscription libre ; seuls les agents créés par un administrateur dans Keycloak,
-  avec le rôle `agent`, entrent. **Second facteur TOTP obligatoire**, blocage après 5 échecs.
+  avec le rôle `agent`, entrent. **Second facteur TOTP obligatoire** à chaque connexion (aucune session réutilisée, même sur un poste
+  partagé), blocage après 5 échecs.
 - **Rôles vérifiés par le serveur** : `agent`, `responsable` (seul habilité à créer un salon classifié), `admin-securite`
   (enrôle, révoque, consulte le journal dans la console Keycloak du domaine).
 - **Révocation centralisée** : désactiver un agent dans la console (ou en une commande) coupe toutes ses sessions sur
@@ -100,7 +101,7 @@ s'affiche en haut du salon (Element demande d'approuver ses permissions, une foi
 
 ```bash
 python -m unittest discover tests      # règles (sans la pile)
-docker compose run --rm tests          # 23 tests sur la pile en marche : intrus, 2FA, chiffrement, révocation…
+docker compose run --rm tests          # 24 tests sur la pile en marche : intrus, 2FA, chiffrement, révocation…
 sh scripts/verifier.sh contenu "CHAINE-UNIQUE"     # le serveur ne lit rien (base, fichiers, journaux)
 sh scripts/verifier.sh cles "Nom du salon"         # nouvelle clé Megolm après une révocation
 ```
@@ -113,8 +114,6 @@ Détail des vérifications : [`docs/verification.md`](docs/verification.md). Men
 - Un appareil connecté **après** l'envoi d'un message ne peut pas le déchiffrer (pas de sauvegarde de clés imposée).
 - Après une révocation, ce qui était déjà déchiffré sur un appareil hors ligne y reste ; une photo de l'écran reste
   possible (le filigrane identifie la personne, il n'empêche rien).
-- Après une déconnexion d'Element, la session Keycloak reste ouverte (24 h) : sur un poste partagé, la connexion
-  suivante ne redemande ni mot de passe ni code. À régler côté Keycloak avant un usage réel.
 - `config/element/index.html` est la page d'Element 1.11.85 complétée de notre feuille de style : à régénérer si
   l'on change de version d'Element.
 - Le serveur voit des métadonnées : membres des salons, noms des salons, horodatages, tailles. Keycloak tourne en mode

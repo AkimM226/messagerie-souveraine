@@ -26,7 +26,8 @@
       <td>Pas d'inscription ni de mot de passe local : connexion uniquement par Keycloak (OpenID Connect + PKCE).
       Synapse exige le rôle <code>agent</code>. Aucune fédération, aucun invité. API et consoles d'administration non exposées (403).</td></tr>
   <tr><td>Vol ou devinette du mot de passe</td>
-      <td><b>TOTP obligatoire</b> pour tous (contrôlé par Keycloak, pas par l'interface) ; blocage après 5 échecs ;
+      <td><b>TOTP obligatoire</b> pour tous (contrôlé par Keycloak, pas par l'interface), <b>à chaque connexion</b> : aucune
+      session réutilisée, même sur un poste partagé ; blocage après 5 échecs ;
       limite de connexions par adresse côté Synapse.</td></tr>
   <tr><td>Agent qui quitte son poste, appareil perdu</td>
       <td><b>Révocation centralisée et idempotente</b> : désactiver l'agent dans la console Keycloak suffit. Toutes les 5 s,

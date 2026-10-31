@@ -214,6 +214,18 @@ class TestIntrus(unittest.TestCase):
         self.assertIsNone(jeton)
         self.assertIn("totpSecret", page, "on reste bloqué à l'étape du code")
 
+    def test_pas_de_reconnexion_silencieuse_sur_un_poste_partage(self):
+        # Après une session, le même navigateur doit redemander identifiant, mot de passe et code.
+        kc = Keycloak()
+        identifiant, agent_id = kc.creer_agent(roles=["agent"])
+        self.addCleanup(kc.supprimer, agent_id)
+        nav = Navigateur()
+        self.assertIsNotNone(connexion(identifiant, navigateur=nav)[0])
+        _, url, page = nav.ouvrir(f"{MATRIX}/_matrix/client/v3/login/sso/redirect/oidc-keycloak?"
+                                  + urllib.parse.urlencode({"redirectUrl": "https://chat.localhost/"}))
+        self.assertNotIn("loginToken=", url + page, "aucune connexion sans mot de passe ni code")
+        self.assertIn("username", Formulaire(page).champs)
+
 
 @unittest.skipUnless(CONTEXTE_TLS, "à lancer avec : docker compose run --rm tests")
 class TestAgents(unittest.TestCase):
@@ -295,9 +307,9 @@ class TestAgents(unittest.TestCase):
     def test_revocation_depuis_la_console_coupe_toutes_les_sessions(self):
         identifiant, agent_id = self.kc.creer_agent(["agent"], self.direction)
         self.addCleanup(self.kc.supprimer, agent_id)
-        nav = Navigateur()
-        jeton_1 = connexion(identifiant, navigateur=nav)[0]
-        jeton_2 = connexion(identifiant, navigateur=nav)[0]       # second appareil (nouvelle session Matrix)
+        jeton_1, secret, _ = connexion(identifiant)
+        time.sleep(30 - time.time() % 30 + 1)   # un code TOTP ne sert qu'une fois : on attend le suivant
+        jeton_2 = connexion(identifiant, secret_totp=secret)[0]   # second appareil (autre navigateur)
         self.assertTrue(jeton_1 and jeton_2 and jeton_1 != jeton_2)
         mxid = api("GET", "/account/whoami", jeton_1)[1]["user_id"]
         salon = self.creer_salon(self.jeton_r, name="Essai groupe", invite=[mxid])[1]["room_id"]

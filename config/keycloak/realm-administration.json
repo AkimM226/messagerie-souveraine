@@ -31,13 +31,12 @@
   "authenticationFlows": [
     {
       "alias": "navigateur-2fa",
-      "description": "Mot de passe ET code TOTP toujours exigés (pas d'OTP conditionnel)",
+      "description": "Mot de passe ET code TOTP exigés à chaque connexion : ni OTP conditionnel, ni session réutilisée (poste partagé)",
       "providerId": "basic-flow",
       "topLevel": true,
       "builtIn": false,
       "authenticationExecutions": [
-        { "authenticator": "auth-cookie", "authenticatorFlow": false, "requirement": "ALTERNATIVE", "priority": 10, "userSetupAllowed": false },
-        { "authenticatorFlow": true, "flowAlias": "formulaires-2fa", "requirement": "ALTERNATIVE", "priority": 20, "userSetupAllowed": false }
+        { "authenticatorFlow": true, "flowAlias": "formulaires-2fa", "requirement": "REQUIRED", "priority": 20, "userSetupAllowed": false }
       ]
     },
     {
