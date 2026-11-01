@@ -88,9 +88,14 @@ sh scripts/verifier.sh cles "Nom du salon"      # nouvelle clé Megolm après un
 
 Détails : [`docs/verification.md`](docs/verification.md) et [`docs/note-securite.pdf`](docs/note-securite.pdf).
 
-## Limites connues
+## Limites connues et améliorations en cours
 
-- Un appareil connecté **après** un message ne peut pas le lire (pas de sauvegarde de clés imposée). Après une
-  révocation, ce qui était déjà déchiffré hors ligne y reste ; une photo d'écran reste possible (le filigrane identifie).
-- Le serveur voit des métadonnées : membres et noms des salons, horodatages, tailles (détail dans la note de sécurité).
-- Keycloak en mode développement, un seul serveur ; `config/element/index.html` suit Element 1.11.85.
+Nous continuons de travailler à réduire chacune de ces limites :
+
+- Un appareil connecté **après** un message ne peut pas le lire → sauvegarde des clés chiffrée, protégée par une phrase
+  de récupération. Ce qui était déjà déchiffré sur un appareil révoqué hors ligne y reste → effacement à distance.
+- Une photo d'écran reste possible (le filigrane identifie l'agent) → application mobile bloquant les captures.
+- Le serveur voit des métadonnées (membres et noms des salons, horodatages, tailles) → réduction continue, détaillée
+  dans la note de sécurité.
+- Keycloak en mode développement, un seul serveur → passage en production (base dédiée, haute disponibilité) ;
+  `config/element/index.html` suit Element 1.11.85 et sera mis à jour avec Element.

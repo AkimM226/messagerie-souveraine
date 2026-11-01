@@ -69,18 +69,22 @@ Le widget du circuit n'a aucune clé : Element chiffre ses événements (instruc
 contenu d'un message supprimé effacé après 1 h ; le serveur ne distingue pas une instruction ou un accusé du circuit d'un
 message ordinaire ; aucun contenu, jeton ou clé privée dans les journaux.</p>
 
-<h2>4. Limites techniques et risques résiduels</h2>
+<h2>4. Limites connues et améliorations en cours</h2>
+<p>Nous documentons ces limites et continuons de travailler à les réduire ; pour chacune, la piste suivie :</p>
 <ul>
-  <li><b>Après révocation</b>, ce qui était déjà déchiffré sur un appareil hors ligne y reste lisible : aucun effacement à distance.</li>
-  <li>Un appareil connecté <b>après</b> l'envoi d'un message ne peut pas le lire (pas de sauvegarde de clés imposée) ;
-      les clés locales d'Element sont protégées par le navigateur et le système, pas par une phrase secrète.</li>
-  <li><b>Capture et photo d'écran</b> restent possibles : le filigrane identifie l'agent, il n'empêche rien.
-      Les accusés du circuit ne sont pas une signature électronique au sens juridique.</li>
-  <li><b>Administrateur malveillant</b> : il ne lit pas les messages passés mais pourrait ajouter un appareil à un compte ;
-      la vérification croisée des appareils d'Element le signale. TOTP n'empêche pas l'hameçonnage en temps réel (WebAuthn prévu).</li>
-  <li>Révocation propagée en ≤ 5 s par relecture de l'annuaire ; Keycloak en mode développement (base intégrée) ;
-      un seul serveur ; secrets et certificats de démonstration à remplacer (<code>.env</code>) ; une sauvegarde contient
-      des clés privées du serveur (à conserver chiffrée, hors ligne).</li>
+  <li><b>Après révocation</b>, ce qui était déjà déchiffré sur un appareil hors ligne y reste lisible
+      → <i>effacement à distance des données locales à la reconnexion (bouton d'urgence).</i></li>
+  <li>Un appareil connecté <b>après</b> l'envoi d'un message ne peut pas le lire ; les clés locales sont protégées par le
+      navigateur et le système → <i>sauvegarde des clés chiffrée, protégée par une phrase de récupération.</i></li>
+  <li><b>Capture et photo d'écran</b> restent possibles (le filigrane identifie l'agent) ; les accusés du circuit ne sont pas
+      une signature électronique → <i>application mobile bloquant les captures ; signature avec une infrastructure de clés de l'État.</i></li>
+  <li><b>Administrateur malveillant</b> : il ne lit pas les messages passés mais pourrait ajouter un appareil à un compte
+      (signalé par la vérification croisée d'Element) ; TOTP n'empêche pas l'hameçonnage en temps réel
+      → <i>clés de sécurité WebAuthn, double validation des actions d'administration.</i></li>
+  <li>Révocation en ≤ 5 s par relecture de l'annuaire ; Keycloak en mode développement ; un seul serveur ; secrets de
+      démonstration (<code>.env</code>) ; une sauvegarde contient des clés privées du serveur (à garder chiffrée, hors ligne)
+      → <i>révocation instantanée par notification, déploiement de production (base dédiée, haute disponibilité),
+      sauvegardes chiffrées automatiques.</i></li>
 </ul>
 </body>
 </html>
